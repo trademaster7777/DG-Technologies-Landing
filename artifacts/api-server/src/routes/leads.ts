@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { db, leadsTable } from "@workspace/db";
 import { CreateLeadBody, CreateLeadResponse } from "@workspace/api-zod";
 import { rateLimit } from "../lib/rateLimit";
+import { sendLeadNotification } from "../lib/mailer";
 
 const router: IRouter = Router();
 
@@ -47,6 +48,35 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
     .returning();
 
   req.log.info({ leadId: lead!.id }, "Lead captured");
+
+  // Notify the owner before responding: on autoscale deployments, work that
+  // happens after the response is sent can be throttled or killed. The lead
+  // is already saved — an email failure is only logged, never surfaced.
+  try {
+    const emailId = await sendLeadNotification({
+      id: lead!.id,
+      name: lead!.name,
+      email: lead!.email,
+      phone: lead!.phone,
+      businessName: lead!.businessName,
+      packageInterest: lead!.packageInterest,
+      message: lead!.message,
+    });
+    if (emailId) {
+      req.log.info({ leadId: lead!.id, emailId }, "Lead notification email sent");
+    } else {
+      req.log.warn(
+        { leadId: lead!.id },
+        "LEAD_NOTIFY_EMAIL not set; lead notification email skipped",
+      );
+    }
+  } catch (err) {
+    req.log.error(
+      { err, leadId: lead!.id },
+      "Failed to send lead notification email",
+    );
+  }
+
   res.status(201).json(CreateLeadResponse.parse(lead));
 });
 
