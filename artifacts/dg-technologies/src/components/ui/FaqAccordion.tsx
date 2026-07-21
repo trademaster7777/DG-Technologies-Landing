@@ -12,16 +12,16 @@ interface AccordionItemProps {
 
 export function AccordionItem({ question, answer, isOpen, onClick }: AccordionItemProps) {
   return (
-    <div className="border-b border-white/10 last:border-0">
+    <div className="border-b border-foreground/10 last:border-0">
       <button
         className="w-full py-6 flex items-center justify-between text-left focus:outline-none"
         onClick={onClick}
       >
-        <span className="text-lg font-medium text-white">{question}</span>
+        <span className="text-lg font-medium text-foreground">{question}</span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] as const }}
-          className="ml-4 flex-shrink-0 text-white/50"
+          className="ml-4 flex-shrink-0 text-foreground/50"
         >
           <ChevronDown className="w-5 h-5" />
         </motion.div>
@@ -54,7 +54,7 @@ export function Accordion({ items, className }: AccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <div className={cn("w-full divide-y divide-white/10 border-y border-white/10", className)}>
+    <div className={cn("w-full divide-y divide-foreground/10 border-y border-foreground/10", className)}>
       {items.map((item, index) => (
         <AccordionItem
           key={index}

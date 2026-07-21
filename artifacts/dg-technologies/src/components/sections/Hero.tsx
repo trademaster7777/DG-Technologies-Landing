@@ -24,7 +24,7 @@ export function Hero() {
     <section className="relative min-h-[100dvh] flex items-center justify-center pt-24 overflow-hidden">
       {/* Aurora Background */}
       <div className="absolute inset-0 aurora-bg opacity-70" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] opacity-50" />
+      <div className="absolute inset-0 dot-grid [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] opacity-50" />
 
       <div className="container relative z-10 px-4 md:px-6 flex flex-col items-center text-center max-w-5xl mx-auto">
         <motion.h1 
@@ -63,14 +63,14 @@ export function Hero() {
           <MagneticButton href={BOOKING_URL} variant="primary" className="text-lg px-10 py-5">
             Book Your Free Strategy Call
           </MagneticButton>
-          <a href="#how-it-works" className="text-sm font-medium text-white/80 hover:text-white transition-colors">
+          <a href="#how-it-works" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
             See how it works ↓
           </a>
         </motion.div>
 
         {/* Trust Bar */}
         <motion.div 
-          className="mt-20 flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm md:text-base font-medium text-white/95"
+          className="mt-20 flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm md:text-base font-medium text-foreground/95"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.2 }}
@@ -82,7 +82,7 @@ export function Hero() {
           ].map((text, i) => (
             <motion.div 
               key={i}
-              className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 backdrop-blur-sm"
+              className="flex items-center gap-2 bg-foreground/5 border border-foreground/10 rounded-full px-4 py-2 backdrop-blur-sm"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.4 + i * 0.1, duration: 0.5 }}

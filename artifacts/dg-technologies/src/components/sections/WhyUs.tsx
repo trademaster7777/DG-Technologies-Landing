@@ -56,7 +56,7 @@ export function WhyUs() {
 
   return (
     <section id="why-us" className="py-24 md:py-32 relative overflow-hidden">
-      <div className="absolute inset-0 bg-white/[0.02] border-y border-white/5" />
+      <div className="absolute inset-0 bg-foreground/[0.02] border-y border-foreground/5" />
       <div className="container relative z-10 px-4 md:px-6 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

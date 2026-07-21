@@ -9,14 +9,14 @@ export function Upsell() {
       
       <div className="container px-4 md:px-6 mx-auto relative z-10">
         <motion.div 
-          className="glass-card max-w-4xl mx-auto rounded-3xl p-10 md:p-16 text-center border-white/20 relative overflow-hidden"
+          className="glass-card max-w-4xl mx-auto rounded-3xl p-10 md:p-16 text-center border-foreground/20 relative overflow-hidden"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8 }}
         >
           {/* Subtle shine effect inside card */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-foreground/0 via-foreground/5 to-foreground/0 opacity-50" />
           
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
             Ready for more than a website?

@@ -9,7 +9,7 @@ interface LogoLockupProps {
 }
 
 /**
- * Brand lockup: D2G mark image with a crisp white TECHNOLOGY line below.
+ * Brand lockup: D2G mark image with a crisp TECHNOLOGY line below.
  * The wordmark is real text (not raster) so it stays sharp at small sizes.
  */
 export function LogoLockup({ className, markClassName, textClassName }: LogoLockupProps) {
@@ -18,7 +18,7 @@ export function LogoLockup({ className, markClassName, textClassName }: LogoLock
       <img src={logoMark} alt="D2G" className={cn('w-auto', markClassName)} />
       <span
         className={cn(
-          'font-semibold uppercase text-white leading-none tracking-[0.38em]',
+          'font-semibold uppercase text-foreground leading-none tracking-[0.38em]',
           textClassName,
         )}
       >

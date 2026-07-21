@@ -84,10 +84,10 @@ export function Pricing() {
                 "1 Round of Revisions"
               ].map((feature, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-white/80 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 text-foreground/80 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-white/80">{feature}</span>
+                  <span className="text-foreground/80">{feature}</span>
                 </li>
               ))}
             </ul>
@@ -103,7 +103,7 @@ export function Pricing() {
             <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-primary opacity-50 animate-[spin_4s_linear_infinite] scale-[2.0]" />
             <div className="absolute inset-0 bg-background/90 rounded-3xl backdrop-blur-3xl m-[1px]" />
             
-            <div className="relative z-10 bg-black/40 rounded-3xl p-8 md:p-10 h-full flex flex-col">
+            <div className="relative z-10 bg-background/75 dark:bg-black/40 rounded-3xl p-8 md:p-10 h-full flex flex-col">
               <div className="absolute top-0 right-8 -translate-y-1/2">
                 <span className="bg-gradient-to-r from-primary to-accent text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)] tracking-wider">
                   MOST POPULAR
@@ -132,7 +132,7 @@ export function Pricing() {
                     <svg className="w-5 h-5 text-primary shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span className="text-white/90 font-medium">{feature}</span>
+                    <span className="text-foreground/90 font-medium">{feature}</span>
                   </li>
                 ))}
               </ul>

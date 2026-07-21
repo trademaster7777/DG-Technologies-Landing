@@ -9,7 +9,7 @@ const PACKAGE_OPTIONS = [
 ] as const;
 
 const inputClasses =
-  'w-full rounded-xl bg-white/5 border border-white/15 px-4 py-3.5 text-white placeholder:text-white/45 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/30 transition-colors';
+  'w-full rounded-xl bg-foreground/5 border border-foreground/15 px-4 py-3.5 text-foreground placeholder:text-foreground/45 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/30 transition-colors';
 
 export function FinalCTA() {
   const [name, setName] = useState('');
@@ -78,7 +78,7 @@ export function FinalCTA() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                  <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                     You're on the list{name.trim() ? `, ${name.trim().split(' ')[0]}` : ''}.
                   </h3>
                   <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto">
@@ -108,7 +108,7 @@ export function FinalCTA() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <label htmlFor="lead-name" className="block text-sm font-medium text-white/85 mb-2">
+                      <label htmlFor="lead-name" className="block text-sm font-medium text-foreground/85 mb-2">
                         Your name <span className="text-accent">*</span>
                       </label>
                       <input
@@ -123,7 +123,7 @@ export function FinalCTA() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="lead-business" className="block text-sm font-medium text-white/85 mb-2">
+                      <label htmlFor="lead-business" className="block text-sm font-medium text-foreground/85 mb-2">
                         Business name
                       </label>
                       <input
@@ -137,7 +137,7 @@ export function FinalCTA() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="lead-phone" className="block text-sm font-medium text-white/85 mb-2">
+                      <label htmlFor="lead-phone" className="block text-sm font-medium text-foreground/85 mb-2">
                         Phone number <span className="text-accent">*</span>
                       </label>
                       <input
@@ -153,7 +153,7 @@ export function FinalCTA() {
                       />
                     </div>
                     <div>
-                      <label htmlFor="lead-email" className="block text-sm font-medium text-white/85 mb-2">
+                      <label htmlFor="lead-email" className="block text-sm font-medium text-foreground/85 mb-2">
                         Email <span className="text-accent">*</span>
                       </label>
                       <input
@@ -170,7 +170,7 @@ export function FinalCTA() {
                   </div>
 
                   <div>
-                    <span className="block text-sm font-medium text-white/85 mb-2">
+                    <span className="block text-sm font-medium text-foreground/85 mb-2">
                       Which package are you leaning toward?
                     </span>
                     <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Package interest">
@@ -185,8 +185,8 @@ export function FinalCTA() {
                           }
                           className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-all duration-300 ${
                             packageInterest === opt.value
-                              ? 'bg-gradient-to-r from-primary/30 to-accent/30 border-primary/60 text-white shadow-[0_0_20px_rgba(99,102,241,0.25)]'
-                              : 'bg-white/5 border-white/15 text-white/75 hover:border-white/30 hover:text-white'
+                              ? 'bg-gradient-to-r from-primary/30 to-accent/30 border-primary/60 text-foreground shadow-[0_0_20px_rgba(99,102,241,0.25)]'
+                              : 'bg-foreground/5 border-foreground/15 text-foreground/75 hover:border-foreground/30 hover:text-foreground'
                           }`}
                         >
                           {opt.label}
@@ -196,7 +196,7 @@ export function FinalCTA() {
                   </div>
 
                   <div>
-                    <label htmlFor="lead-message" className="block text-sm font-medium text-white/85 mb-2">
+                    <label htmlFor="lead-message" className="block text-sm font-medium text-foreground/85 mb-2">
                       Anything we should know before we call?
                     </label>
                     <textarea

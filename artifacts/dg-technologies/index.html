@@ -21,6 +21,20 @@
     <meta name="twitter:image" content="https://dg-technologies-landing.replit.app/og-image.png" />
     <link rel="canonical" href="https://dg-technologies-landing.replit.app/" />
     <meta name="theme-color" content="#0A0A0F" />
+    <script>
+      (function () {
+        try {
+          var p = new URLSearchParams(location.search).get('theme');
+          var t = p === 'light' || p === 'dark' ? p : localStorage.getItem('d2g-theme');
+          var isDark = t !== 'light';
+          document.documentElement.classList.toggle('dark', isDark);
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', isDark ? '#0A0A0F' : '#F7F9FC');
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

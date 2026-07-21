@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll } from 'framer-motion';
 import { MagneticButton } from './ui/MagneticButton';
 import { LogoLockup } from './ui/LogoLockup';
+import { ThemeToggle } from './ui/ThemeToggle';
 import { BOOKING_URL } from '@/lib/booking';
 import { cn } from '@/lib/utils';
 
@@ -58,7 +59,7 @@ export function Header() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         isScrolled || menuOpen
-          ? "bg-background/80 backdrop-blur-lg border-b border-white/10 py-4"
+          ? "bg-background/80 backdrop-blur-lg border-b border-border py-4"
           : "bg-transparent py-6"
       )}
       initial={{ y: -100 }}
@@ -78,7 +79,7 @@ export function Header() {
             <a
               key={item.name}
               href={item.href}
-              className="text-sm font-medium text-white/85 hover:text-white transition-colors relative group"
+              className="text-sm font-medium text-foreground/85 hover:text-foreground transition-colors relative group"
             >
               {item.name}
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full" />
@@ -86,9 +87,12 @@ export function Header() {
           ))}
         </nav>
 
-        <MagneticButton href={BOOKING_URL} variant="primary" className="hidden md:inline-flex px-6 py-2.5 text-sm">
-          Book a Free Call
-        </MagneticButton>
+        <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
+          <MagneticButton href={BOOKING_URL} variant="primary" className="px-6 py-2.5 text-sm">
+            Book a Free Call
+          </MagneticButton>
+        </div>
 
         {/* Mobile: compact CTA + menu toggle */}
         <div className="flex md:hidden items-center gap-3">
@@ -102,7 +106,7 @@ export function Header() {
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white active:bg-white/10 transition-colors"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-foreground/10 bg-foreground/5 text-foreground active:bg-foreground/10 transition-colors"
           >
             {menuOpen ? (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -122,7 +126,7 @@ export function Header() {
         {menuOpen && (
           <motion.nav
             id="mobile-nav"
-            className="md:hidden absolute top-full left-0 right-0 overflow-hidden bg-background/95 backdrop-blur-xl border-b border-white/10"
+            className="md:hidden absolute top-full left-0 right-0 overflow-hidden bg-background/95 backdrop-blur-xl border-b border-border"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -134,11 +138,15 @@ export function Header() {
                   key={item.name}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="py-3.5 text-base font-medium text-white/90 border-b border-white/5 last:border-0"
+                  className="py-3.5 text-base font-medium text-foreground/90 border-b border-foreground/5"
                 >
                   {item.name}
                 </a>
               ))}
+              <div className="flex items-center justify-between py-3.5">
+                <span className="text-base font-medium text-foreground/90">Appearance</span>
+                <ThemeToggle className="h-11 w-11" />
+              </div>
               <a
                 href={BOOKING_URL}
                 onClick={() => setMenuOpen(false)}

@@ -56,7 +56,7 @@ export function HowItWorks() {
 
         <div className="relative" ref={containerRef}>
           {/* Central Line */}
-          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] -ml-[1px] bg-white/10 hidden md:block" />
+          <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] -ml-[1px] bg-foreground/10 hidden md:block" />
           <motion.div 
             className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] -ml-[1px] bg-gradient-to-b from-primary to-accent hidden md:block origin-top"
             style={{ scaleY: pathLength }}
@@ -70,7 +70,7 @@ export function HowItWorks() {
                 <div className="hidden md:block w-1/2" />
                 
                 {/* Node */}
-                <div className="absolute left-4 md:left-1/2 top-0 md:top-1/2 -ml-3 md:-ml-[18px] md:-mt-[18px] w-6 h-6 md:w-9 md:h-9 rounded-full bg-background border border-white/20 flex items-center justify-center z-10 hidden md:flex">
+                <div className="absolute left-4 md:left-1/2 top-0 md:top-1/2 -ml-3 md:-ml-[18px] md:-mt-[18px] w-6 h-6 md:w-9 md:h-9 rounded-full bg-background border border-foreground/20 flex items-center justify-center z-10 hidden md:flex">
                   <motion.div 
                     className="w-2 h-2 md:w-3 md:h-3 rounded-full bg-primary"
                     initial={{ scale: 0 }}
@@ -87,7 +87,7 @@ export function HowItWorks() {
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
                 >
-                  <div className="glass-card p-8 rounded-2xl hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-shadow group relative overflow-hidden">
+                  <div className="glass-card p-8 rounded-2xl hover:shadow-[0_8px_30px_rgba(20,25,50,0.12)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-shadow group relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-6 opacity-10 font-bold text-6xl group-hover:scale-110 transition-transform duration-500">
                       0{step.num}
                     </div>

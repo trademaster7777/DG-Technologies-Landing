@@ -23,7 +23,7 @@ export function Problem() {
             <p>
               DIY builders eat your weekends. Agencies quote you thousands and bury you in jargon. There's a simpler way.
             </p>
-            <p className="text-white font-medium text-xl md:text-2xl mt-8">
+            <p className="text-foreground font-medium text-xl md:text-2xl mt-8">
               You talk. We build. You launch.
             </p>
           </div>

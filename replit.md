@@ -26,12 +26,12 @@ Single-page premium dark marketing site for D2G Technology (brand name per the u
 - Lead capture: booking form in `src/components/sections/FinalCTA.tsx` (section `#book`) → `POST /api/leads` (`artifacts/api-server/src/routes/leads.ts`) → `leads` table (`lib/db/src/schema/leads.ts`). Protected by per-IP rate limit (5/10min) + honeypot field.
 - Sections: `artifacts/dg-technologies/src/components/sections/`
 - Booking link (all CTAs): `artifacts/dg-technologies/src/lib/booking.ts` — swap `BOOKING_URL` here to point CTAs at Calendly/phone
-- Theme: `artifacts/dg-technologies/src/index.css`
+- Theme: `artifacts/dg-technologies/src/index.css` (`:root` = light palette, `.dark` = dark palette). Toggle: `src/components/ThemeProvider.tsx` + `src/components/ui/ThemeToggle.tsx` — `dark` class on `<html>`, persisted in localStorage `d2g-theme`, dark is the default, `?theme=light|dark` URL override (handy for screenshots)
 - Original copy/design brief: `attached_assets/Pasted--Replit-Agent-Prompt-DG-Technologies-Landing-Page-Copy-_1784651014656.txt`
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Theming rule: components use `foreground`/`background` token utilities (e.g. `text-foreground/70`, `bg-foreground/5`) so both themes work. `text-white` is ONLY kept on colored gradient surfaces (primary CTA buttons, badges, success checkmark) — follow this rule when adding components. FOUC is prevented by an inline pre-paint script in `index.html` that must stay in sync with `ThemeProvider` defaults.
 
 ## Product
 

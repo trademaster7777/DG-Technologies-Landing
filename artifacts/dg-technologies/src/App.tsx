@@ -82,7 +82,7 @@ function LandingPage() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="bg-background min-h-screen text-foreground selection:bg-primary/30 selection:text-white">
+      <div className="bg-background min-h-screen text-foreground selection:bg-primary/30">
         <ScrollProgress />
         <Header />
         <main>
