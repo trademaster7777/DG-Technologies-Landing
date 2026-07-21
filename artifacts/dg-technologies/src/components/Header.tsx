@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll } from 'framer-motion';
 import { MagneticButton } from './ui/MagneticButton';
+import { LogoLockup } from './ui/LogoLockup';
 import { BOOKING_URL } from '@/lib/booking';
 import { cn } from '@/lib/utils';
-import logoMark from '@/assets/logo-mark.png';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -35,8 +35,11 @@ export function Header() {
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <a href="#" className="flex items-center" aria-label="DG Technologies — back to top">
-          <img src={logoMark} alt="DG Technologies" className="h-9 md:h-11 w-auto" />
+        <a href="#" className="flex items-center" aria-label="D2G Technology — back to top">
+          <LogoLockup
+            markClassName="h-7 md:h-8"
+            textClassName="mt-1 text-[8px] md:text-[9px]"
+          />
         </a>
         
         <nav className="hidden md:flex items-center gap-8">

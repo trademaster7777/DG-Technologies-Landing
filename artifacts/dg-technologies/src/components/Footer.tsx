@@ -1,12 +1,12 @@
 import React from 'react';
-import logoMark from '@/assets/logo-mark.png';
+import { LogoLockup } from './ui/LogoLockup';
 
 export function Footer() {
   return (
     <footer className="bg-black/50 border-t border-white/5 py-12">
       <div className="container px-4 md:px-6 mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <img src={logoMark} alt="DG Technologies" className="h-9 w-auto" />
+          <LogoLockup markClassName="h-10" textClassName="mt-1.5 text-[10px]" />
           
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
