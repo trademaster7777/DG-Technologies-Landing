@@ -1,6 +1,6 @@
-# DG Technologies Landing Page
+# D2G Technology Landing Page
 
-Single-page premium dark marketing site for DG Technologies, a firm that builds affordable websites for small businesses entirely over the phone.
+Single-page premium dark marketing site for D2G Technology (brand name per the uploaded logo), a firm that builds affordable websites for small businesses entirely over the phone.
 
 ## Run & Operate
 

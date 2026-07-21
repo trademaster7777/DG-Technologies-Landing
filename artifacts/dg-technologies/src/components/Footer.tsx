@@ -15,7 +15,7 @@ export function Footer() {
         </div>
         
         <div className="mt-12 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground border-t border-white/5 pt-8">
-          <p>© 2026 DG Technologies. All rights reserved.</p>
+          <p>© 2026 D2G Technology. All rights reserved.</p>
           <p>Built for small businesses, everywhere.</p>
         </div>
       </div>
