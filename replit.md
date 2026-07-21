@@ -10,6 +10,7 @@ Single-page premium dark marketing site for D2G Technology (brand name per the u
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Lead alert env: `LEAD_NOTIFY_EMAIL` — inbox that receives new-lead emails (unset = emails skipped, only logged); optional `LEAD_FROM_EMAIL` sender override (default `onboarding@resend.dev`)
 
 ## Stack
 
@@ -24,6 +25,7 @@ Single-page premium dark marketing site for D2G Technology (brand name per the u
 
 - Landing page app: `artifacts/dg-technologies`
 - Lead capture: booking form in `src/components/sections/FinalCTA.tsx` (section `#book`) → `POST /api/leads` (`artifacts/api-server/src/routes/leads.ts`) → `leads` table (`lib/db/src/schema/leads.ts`). Protected by per-IP rate limit (5/10min) + honeypot field.
+- Lead email alerts: `artifacts/api-server/src/lib/mailer.ts` — Resend connector (`@replit/connectors-sdk` proxy). Sent after DB insert, awaited before the 201 but failures only logged (never breaks capture); honeypot submissions never email. NOTE: until a domain is verified in Resend, Resend only delivers to the Resend account owner's address.
 - Sections: `artifacts/dg-technologies/src/components/sections/`
 - Booking link (all CTAs): `artifacts/dg-technologies/src/lib/booking.ts` — swap `BOOKING_URL` here to point CTAs at Calendly/phone
 - Theme: `artifacts/dg-technologies/src/index.css` (`:root` = light palette, `.dark` = dark palette). Toggle: `src/components/ThemeProvider.tsx` + `src/components/ui/ThemeToggle.tsx` — `dark` class on `<html>`, persisted in localStorage `d2g-theme`, dark is the default, `?theme=light|dark` URL override (handy for screenshots)
