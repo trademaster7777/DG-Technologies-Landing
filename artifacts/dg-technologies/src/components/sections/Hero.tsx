@@ -63,14 +63,14 @@ export function Hero() {
           <MagneticButton href={BOOKING_URL} variant="primary" className="text-lg px-10 py-5">
             Book Your Free Strategy Call
           </MagneticButton>
-          <a href="#how-it-works" className="text-sm font-medium text-white/60 hover:text-white transition-colors">
+          <a href="#how-it-works" className="text-sm font-medium text-white/80 hover:text-white transition-colors">
             See how it works ↓
           </a>
         </motion.div>
 
         {/* Trust Bar */}
         <motion.div 
-          className="mt-20 flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm md:text-base font-medium text-white/80"
+          className="mt-20 flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm md:text-base font-medium text-white/95"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.2 }}

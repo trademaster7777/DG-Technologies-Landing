@@ -43,7 +43,7 @@ export function Header() {
             <a 
               key={item.name} 
               href={item.href}
-              className="text-sm font-medium text-white/70 hover:text-white transition-colors relative group"
+              className="text-sm font-medium text-white/85 hover:text-white transition-colors relative group"
             >
               {item.name}
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full" />
