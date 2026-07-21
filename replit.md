@@ -22,7 +22,8 @@ Single-page premium dark marketing site for DG Technologies, a firm that builds 
 
 ## Where things live
 
-- Landing page app: `artifacts/dg-technologies` (frontend-only, no backend)
+- Landing page app: `artifacts/dg-technologies`
+- Lead capture: booking form in `src/components/sections/FinalCTA.tsx` (section `#book`) → `POST /api/leads` (`artifacts/api-server/src/routes/leads.ts`) → `leads` table (`lib/db/src/schema/leads.ts`). Protected by per-IP rate limit (5/10min) + honeypot field.
 - Sections: `artifacts/dg-technologies/src/components/sections/`
 - Booking link (all CTAs): `artifacts/dg-technologies/src/lib/booking.ts` — swap `BOOKING_URL` here to point CTAs at Calendly/phone
 - Theme: `artifacts/dg-technologies/src/index.css`

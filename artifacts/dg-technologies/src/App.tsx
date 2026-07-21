@@ -30,14 +30,52 @@ function LandingPage() {
       touchMultiplier: 2,
     });
 
+    let rafId = 0;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
+
+    // Route same-page anchor clicks through Lenis for smooth scrolling
+    function onAnchorClick(e: MouseEvent) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
+      }
+      const target = (e.target as HTMLElement).closest('a[href*="#"]');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (!href) return;
+      const url = new URL(href, window.location.href);
+      // Only intercept links to an anchor on this same page
+      if (url.origin !== window.location.origin || url.pathname !== window.location.pathname) {
+        return;
+      }
+      if (url.hash.length <= 1) return;
+      const el = document.querySelector(url.hash);
+      if (!el) return;
+      e.preventDefault();
+      lenis.scrollTo(el as HTMLElement, { offset: -72 });
+      if (window.location.hash !== url.hash) {
+        history.pushState(null, '', url.hash);
+      }
+    }
+    document.addEventListener('click', onAnchorClick);
+
+    // If the page is loaded with a hash (e.g. a shared /#book link), land on it
+    if (window.location.hash) {
+      const el = document.querySelector(window.location.hash);
+      if (el) {
+        requestAnimationFrame(() => {
+          lenis.scrollTo(el as HTMLElement, { immediate: true, offset: -72 });
+        });
+      }
+    }
 
     return () => {
+      cancelAnimationFrame(rafId);
+      document.removeEventListener('click', onAnchorClick);
       lenis.destroy();
     };
   }, []);

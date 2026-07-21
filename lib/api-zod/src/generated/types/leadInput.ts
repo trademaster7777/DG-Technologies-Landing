@@ -5,22 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-export interface HealthStatus {
-  status: string;
-}
-
-export interface ApiErrorResponse {
-  error: string;
-}
-
-export type LeadInputPackageInterest = typeof LeadInputPackageInterest[keyof typeof LeadInputPackageInterest];
-
-
-export const LeadInputPackageInterest = {
-  launchpad: 'launchpad',
-  presence: 'presence',
-  'not-sure': 'not-sure',
-} as const;
+import type { LeadInputPackageInterest } from './leadInputPackageInterest';
 
 export interface LeadInput {
   /**
@@ -49,18 +34,3 @@ export interface LeadInput {
      */
   website?: string;
 }
-
-export interface Lead {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  /** @nullable */
-  businessName: string | null;
-  /** @nullable */
-  packageInterest: string | null;
-  /** @nullable */
-  message: string | null;
-  createdAt: string;
-}
-

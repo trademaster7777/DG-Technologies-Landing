@@ -10,7 +10,40 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: leads
+    description: Lead capture operations
 paths:
+  /leads:
+    post:
+      operationId: createLead
+      tags: [leads]
+      summary: Capture a lead
+      description: Stores contact info submitted before booking a strategy call
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadInput"
+      responses:
+        "201":
+          description: Lead created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
   /healthz:
     get:
       operationId: healthCheck
@@ -33,4 +66,72 @@ components:
           type: string
       required:
         - status
+    ApiErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    LeadInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        email:
+          type: string
+          pattern: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+          maxLength: 320
+        phone:
+          type: string
+          minLength: 7
+          maxLength: 40
+        businessName:
+          type: string
+          maxLength: 200
+        packageInterest:
+          type: string
+          enum: [launchpad, presence, not-sure]
+        message:
+          type: string
+          maxLength: 2000
+        website:
+          type: string
+          maxLength: 200
+          description: Honeypot field — must be left blank; non-empty submissions are discarded
+      required:
+        - name
+        - email
+        - phone
+    Lead:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        businessName:
+          type: ["string", "null"]
+        packageInterest:
+          type: ["string", "null"]
+        message:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - phone
+        - businessName
+        - packageInterest
+        - message
+        - createdAt
 
