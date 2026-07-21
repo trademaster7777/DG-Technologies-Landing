@@ -3,6 +3,7 @@ import { motion, useScroll } from 'framer-motion';
 import { MagneticButton } from './ui/MagneticButton';
 import { BOOKING_URL } from '@/lib/booking';
 import { cn } from '@/lib/utils';
+import logoMark from '@/assets/logo-mark.png';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -34,8 +35,8 @@ export function Header() {
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <a href="#" className="text-xl md:text-2xl font-bold tracking-tighter text-white">
-          DG Technologies
+        <a href="#" className="flex items-center" aria-label="DG Technologies — back to top">
+          <img src={logoMark} alt="DG Technologies" className="h-9 md:h-11 w-auto" />
         </a>
         
         <nav className="hidden md:flex items-center gap-8">
