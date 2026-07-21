@@ -6,3 +6,9 @@ id = "8ankDAE5WsdZ98TePFrL4"
 uri = "file://artifacts/promo-video/public/audio/bg_music.mp3"
 type = "audio"
 title = "d2g promo bg music"
+
+[[outputs]]
+id = "59M5RILxu7weW6kppaKJf"
+uri = "file://artifacts/dg-technologies/public/og-image.png"
+type = "image"
+title = "Link share preview card"
