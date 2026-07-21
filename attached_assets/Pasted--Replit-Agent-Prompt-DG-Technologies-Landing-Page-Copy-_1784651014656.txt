@@ -1,0 +1,128 @@
+# Replit Agent Prompt — DG Technologies Landing Page
+
+Copy everything below the line into Replit Agent.
+
+---
+
+Build a single-page marketing website for **DG Technologies**, a technology services firm that builds affordable websites for small businesses, entrepreneurs, and solopreneurs — with the entire process done over the phone.
+
+## Tech requirements
+- React + Vite + Tailwind CSS + **Framer Motion** for all animations, **Lenis** for buttery smooth scrolling
+- Fully responsive (mobile-first — most visitors will be small business owners on phones); animations degrade gracefully on mobile and respect `prefers-reduced-motion`
+- All CTA buttons link to a booking placeholder: `#book` anchor for now, structured so I can swap in a Calendly/phone link later in one place
+- Keep it performant despite the animations: lazy-load below-the-fold sections, GPU-friendly transforms only (translate/opacity/scale), no layout-thrashing scroll listeners
+- Footer: dark, spacious, with company name, "© 2026 DG Technologies", placeholder Privacy Policy and Terms links, and a final one-line CTA
+
+## Design direction — PREMIUM IS THE POINT
+This site must look like a $10,000+ agency build. It IS the portfolio — visitors should think "if their own site looks like this, imagine what they'll build for me." Reference the feel of linear.app, vercel.com, and stripe.com: dark, cinematic, precise.
+
+- **Aesthetic:** dark-mode-first. Near-black background (#0A0A0F range) with subtle noise/grain texture, electric blue → violet gradient accents, thin 1px borders with low-opacity white (`white/10`) for card edges
+- **Hero background:** animated gradient mesh / aurora effect slowly drifting behind the headline (CSS or canvas, subtle, ~60s loop) plus a faint dot-grid pattern that fades toward the edges
+- **Typography:** oversized, tight-tracking display headings (Inter or Manrope, weight 700–800, `tracking-tight`), fluid `clamp()` sizing so the H1 feels massive on desktop. Gradient text treatment on key headline words
+- **Glassmorphism sticky header:** transparent at top, blurs (`backdrop-blur`) and gains a hairline bottom border once scrolled
+- **Cards:** glass effect (translucent bg + blur), soft glow on hover, slight lift (`translateY(-4px)`) with a spotlight/radial highlight that follows the cursor on desktop
+- **Buttons:** primary CTA has a gradient fill with animated glow/shine sweep on hover; magnetic hover effect (button subtly follows cursor) on desktop only
+
+## Animations & interactions (make these deliberate, not gimmicky)
+- **Page load:** hero headline reveals with a staggered word-by-word rise + fade (Framer Motion staggerChildren); trust bar items cascade in after
+- **Scroll reveals:** every section animates in once on scroll (fade + 24px rise, ~0.6s ease-out, staggered children). Use `whileInView` with `once: true`
+- **How It Works:** steps connected by a vertical line that "draws" itself as you scroll (SVG path animation tied to scroll progress); each step card slides in alternating from left/right
+- **Pricing cards:** rise in with stagger; "MOST POPULAR" badge gets a subtle pulse; The Presence card has a slow animated gradient border
+- **Stats/trust moments:** any numbers (e.g., "$999") count up when scrolled into view
+- **Parallax:** hero background layers move at slightly different scroll speeds; decorative gradient orbs drift subtly in section backgrounds
+- **FAQ accordion:** smooth height animation with rotating chevron
+- **Micro-interactions:** nav links get animated underline on hover; scroll progress indicator (thin gradient bar) fixed at the very top of the viewport
+- **Restraint rule:** max one "wow" element per viewport. Motion should feel expensive and controlled — 200–600ms, custom cubic-bezier easing, never bouncy or toy-like
+
+## Page structure & exact copy
+
+### 1. Sticky header
+Logo text: "DG Technologies" · Nav links: How It Works, Why Us, Pricing, FAQ · Button: "Book a Free Call"
+
+### 2. Hero
+- H1: "Your Business Deserves to Be Found Online."
+- Subheadline: "We build clean, professional websites for small businesses, entrepreneurs, and solopreneurs — no tech skills required, no complicated process. Just a phone call, a plan, and a launch."
+- Primary button: "Book Your Free Strategy Call"
+- Secondary text link: "See how it works ↓" (scrolls to How It Works)
+- Trust bar beneath: "✓ Flat fees starting at $999 · ✓ Done entirely over the phone · ✓ Launched in days, not months"
+
+### 3. Problem section
+- H2: "You're great at what you do. Your website should say so."
+- Body: "Most small business owners know they need a real online presence — but between running the business, serving customers, and everything else, building a website falls to the bottom of the list. DIY builders eat your weekends. Agencies quote you thousands and bury you in jargon. There's a simpler way. You talk. We build. You launch."
+
+### 4. How It Works (id="how-it-works") — 4 numbered steps, card or timeline layout
+1. **Discovery & Strategy Call (30 minutes)** — "We get on the phone and learn your business: who you serve, what makes you different, and what you need your website to do. No forms, no homework. Just a conversation."
+2. **We Build Your First Draft** — "Our team gets to work turning that conversation into a professional website designed to win you customers. You do nothing but wait for the reveal."
+3. **Feedback Call** — "We walk through the draft together on a second call. You tell us what to tweak — copy, colors, layout, anything — and we make the adjustments."
+4. **Launch & Handoff** — "Your website goes live. We hand you the keys and make sure you're fully equipped to manage your online presence going forward. No dependency, no lock-in."
+- Section button: "Start With Step 1 — Book Your Free Call"
+
+### 5. Why Us (id="why-us") — 4 feature cards
+- **Everything Happens Over the Phone** — "No project portals to learn. No endless email chains. We built our entire process around a channel you already use every day."
+- **Priced for Small Business** — "You shouldn't need an enterprise budget to look professional online. Our pricing is competitive, transparent, and built for entrepreneurs and solopreneurs."
+- **Fast, Focused Delivery** — "Two calls and a draft in between. You get from idea to live website without your project dragging on for months."
+- **You Own It When We're Done** — "We don't hold your website hostage. At handoff, you get everything you need to run and update your own online presence with confidence."
+
+### 6. Pricing (id="pricing") — two side-by-side pricing cards
+H2: "Simple, flat-fee pricing." Subtext: "No hourly billing. No surprise invoices. One price, one finished website."
+
+**Card 1 — The Launchpad — $999 flat fee** (light card)
+Description: "A precision-engineered, single-page landing site designed strictly to convert visitors into leads."
+Features (checkmark list):
+- Custom High-Converting Landing Page
+- Mobile-First Responsive Design
+- Premium Branding Integration
+- Lead Capture Form Integration
+- Basic SEO Optimization
+- 1 Round of Revisions
+Button (outline style): "Select Launchpad" → links to #book
+
+**Card 2 — The Presence — $1,499 flat fee** (dark card, elevated, "MOST POPULAR" pill badge on top)
+Description: "A comprehensive 3-page website establishing serious authority and trust for your business."
+Features (checkmark list):
+- Full 3-Page Website (e.g., Home, About, Services)
+- Bespoke Premium Design
+- Advanced Lead Capture & Contact Forms
+- Performance & Speed Optimization
+- Comprehensive On-Page SEO
+- 2 Rounds of Revisions
+- Priority Support
+Button (filled accent style, subtle glow): "Select Presence" → links to #book
+
+Style note: two-tier layout adapted to the dark theme — The Launchpad as a glass card, The Presence as the elevated featured card with an animated gradient border, gradient checkmarks, "MOST POPULAR" pill badge. Both cards equal width on desktop, stacked on mobile with The Presence first.
+
+### 7. Testimonials — 3 placeholder cards
+Use placeholder text: "[Client testimonial coming soon]" with name/business placeholder lines. Build the component so real quotes drop in easily.
+
+### 8. Upsell teaser
+- H2: "Ready for more than a website?"
+- Body: "A website is your front door. For businesses that want to go further, we also set up practical AI tools — automated responses, booking, and customer follow-up — so your online presence works even when you're off the clock. Ask us about it on your strategy call."
+
+### 9. FAQ (id="faq") — accordion component with these 6 items
+1. **How much does a website cost?** — "Simple flat fees: The Launchpad (single-page site) is $999 and The Presence (full 3-page website) is $1,499. No hourly billing, no surprises — we'll confirm the right fit on your free strategy call."
+2. **How long does it take?** — "Most projects follow our simple rhythm: strategy call, first draft, feedback call, launch. For most clients, that means going live in days or weeks — not months."
+3. **Do I need to be tech-savvy?** — "Not at all. The entire process happens over the phone, and at handoff we make sure you're comfortable managing your site going forward."
+4. **What do you need from me?** — "Just 30 minutes for the first call. We'll tell you if there's anything else (like photos or your logo) as we go."
+5. **What if I already have a website?** — "Great — we can rebuild or refresh it. The process is exactly the same, starting with a strategy call."
+6. **What happens after launch?** — "The website is yours. We equip you to manage it yourself — and we're a phone call away if you ever want help or upgrades."
+
+### 10. Final CTA (id="book")
+- H2: "Your website is one phone call away."
+- Body: "Book your free 30-minute discovery and strategy call. No pressure, no obligation — just a real conversation about your business and what a great website can do for it."
+- Button: "Book My Free Strategy Call"
+- Microcopy under button: "Free 30-minute call · No commitment required"
+
+## SEO
+- `<title>`: "Affordable Small Business Websites | DG Technologies"
+- Meta description: "Professional, affordable websites for small businesses and solopreneurs. Done entirely over the phone — book your free 30-minute strategy call today."
+- Semantic HTML (header, main, section, footer), one H1, proper heading hierarchy
+- Open Graph tags with the same title/description
+- Descriptive alt text on any images/icons
+
+## Do NOT
+- Add a blog, multi-page routing, or CMS
+- Use stock photos anywhere — this design is built on typography, gradients, glass, and motion
+- Use cheesy effects: no bouncing elements, no spinning logos, no autoplaying carousels, no custom cursors that hide the real cursor
+- Let animations block reading — content must be legible immediately, motion is garnish
+- Add popups or chat widgets
+- Invent testimonials, phone numbers, or addresses — use the placeholders exactly as specified. Use ONLY the pricing specified above.

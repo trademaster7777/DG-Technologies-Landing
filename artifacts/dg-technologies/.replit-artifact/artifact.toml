@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "DG Technologies"
+version = "1.0.0"
+id = "artifacts/dg-technologies"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24018
+
+[services.development]
+run = "pnpm --filter @workspace/dg-technologies run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/dg-technologies", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/dg-technologies/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24018"
+BASE_PATH = "/"

@@ -1,6 +1,6 @@
-# [Project name]
+# DG Technologies Landing Page
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Single-page premium dark marketing site for DG Technologies, a firm that builds affordable websites for small businesses entirely over the phone.
 
 ## Run & Operate
 
@@ -22,7 +22,11 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- Landing page app: `artifacts/dg-technologies` (frontend-only, no backend)
+- Sections: `artifacts/dg-technologies/src/components/sections/`
+- Booking link (all CTAs): `artifacts/dg-technologies/src/lib/booking.ts` — swap `BOOKING_URL` here to point CTAs at Calendly/phone
+- Theme: `artifacts/dg-technologies/src/index.css`
+- Original copy/design brief: `attached_assets/Pasted--Replit-Agent-Prompt-DG-Technologies-Landing-Page-Copy-_1784651014656.txt`
 
 ## Architecture decisions
 
