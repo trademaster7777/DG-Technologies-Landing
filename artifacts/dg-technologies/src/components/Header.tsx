@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, useScroll } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll } from 'framer-motion';
 import { MagneticButton } from './ui/MagneticButton';
 import { LogoLockup } from './ui/LogoLockup';
 import { BOOKING_URL } from '@/lib/booking';
@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const { scrollY } = useScroll();
 
   useEffect(() => {
@@ -16,6 +18,33 @@ export function Header() {
     const unsubscribe = scrollY.on('change', updateScroll);
     return () => unsubscribe();
   }, [scrollY]);
+
+  // While the menu is open: close it if the viewport grows past the mobile
+  // breakpoint (e.g. phone rotation), and let Escape close it with focus
+  // returned to the toggle button.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const mq = window.matchMedia('(min-width: 768px)');
+    const onBreakpointChange = () => {
+      if (mq.matches) setMenuOpen(false);
+    };
+    onBreakpointChange();
+    mq.addEventListener('change', onBreakpointChange);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      mq.removeEventListener('change', onBreakpointChange);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [menuOpen]);
 
   const navItems = [
     { name: 'How It Works', href: '#how-it-works' },
@@ -28,7 +57,9 @@ export function Header() {
     <motion.header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        isScrolled ? "bg-background/70 backdrop-blur-lg border-b border-white/10 py-4" : "bg-transparent py-6"
+        isScrolled || menuOpen
+          ? "bg-background/80 backdrop-blur-lg border-b border-white/10 py-4"
+          : "bg-transparent py-6"
       )}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -41,11 +72,11 @@ export function Header() {
             textClassName="mt-1 text-[8px] md:text-[9px]"
           />
         </a>
-        
+
         <nav className="hidden md:flex items-center gap-8">
           {navItems.map((item) => (
-            <a 
-              key={item.name} 
+            <a
+              key={item.name}
               href={item.href}
               className="text-sm font-medium text-white/85 hover:text-white transition-colors relative group"
             >
@@ -59,11 +90,66 @@ export function Header() {
           Book a Free Call
         </MagneticButton>
 
-        {/* Mobile Nav Button (placeholder) */}
-        <MagneticButton href={BOOKING_URL} variant="primary" className="md:hidden px-5 py-2 text-xs">
-          Book Call
-        </MagneticButton>
+        {/* Mobile: compact CTA + menu toggle */}
+        <div className="flex md:hidden items-center gap-3">
+          <MagneticButton href={BOOKING_URL} variant="primary" className="px-5 py-2.5 text-xs">
+            Book Call
+          </MagneticButton>
+          <button
+            ref={toggleRef}
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white active:bg-white/10 transition-colors"
+          >
+            {menuOpen ? (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile nav panel */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.nav
+            id="mobile-nav"
+            className="md:hidden absolute top-full left-0 right-0 overflow-hidden bg-background/95 backdrop-blur-xl border-b border-white/10"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+          >
+            <div className="container mx-auto px-4 pt-2 pb-5 flex flex-col">
+              {navItems.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="py-3.5 text-base font-medium text-white/90 border-b border-white/5 last:border-0"
+                >
+                  {item.name}
+                </a>
+              ))}
+              <a
+                href={BOOKING_URL}
+                onClick={() => setMenuOpen(false)}
+                className="mt-4 rounded-full bg-gradient-to-r from-blue-500 to-violet-500 text-white text-center font-semibold py-3.5"
+              >
+                Book a Free Call
+              </a>
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }
