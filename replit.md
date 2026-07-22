@@ -10,6 +10,7 @@ Single-page premium dark marketing site for D2G Technology (brand name per the u
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Availability env: `CALL_AVAILABILITY` — owner call schedule, e.g. `Mon-Fri 09:00-17:00; Sat 10:00-13:00` (end hour exclusive, hourly slots; unset = every day 09:00-17:00). Served via `GET /api/availability` and enforced on lead submission.
 - Lead alert env: `LEAD_NOTIFY_EMAIL` — inbox that receives new-lead emails (unset = emails skipped, only logged); optional `LEAD_FROM_EMAIL` sender override (default `onboarding@resend.dev`)
 
 ## Stack

@@ -21,6 +21,7 @@ import type {
 
 import type {
   ApiErrorResponse,
+  Availability,
   BookedSlots,
   GetBookedSlotsParams,
   HealthStatus,
@@ -200,6 +201,84 @@ export function useGetBookedSlots<TData = Awaited<ReturnType<typeof getBookedSlo
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetBookedSlotsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAvailabilityUrl = () => {
+
+
+
+
+  return `/api/availability`
+}
+
+/**
+ * Returns the bookable time slots for each day of the week
+ * @summary Weekly call availability
+ */
+export const getAvailability = async ( options?: RequestInit): Promise<Availability> => {
+
+  return customFetch<Availability>(getGetAvailabilityUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAvailabilityQueryKey = () => {
+    return [
+    `/api/availability`
+    ] as const;
+    }
+
+
+export const getGetAvailabilityQueryOptions = <TData = Awaited<ReturnType<typeof getAvailability>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAvailability>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAvailabilityQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAvailability>>> = ({ signal }) => getAvailability({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAvailability>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAvailabilityQueryResult = NonNullable<Awaited<ReturnType<typeof getAvailability>>>
+export type GetAvailabilityQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Weekly call availability
+ */
+
+export function useGetAvailability<TData = Awaited<ReturnType<typeof getAvailability>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAvailability>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAvailabilityQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

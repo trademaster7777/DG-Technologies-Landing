@@ -24,6 +24,7 @@ export const createLeadBodyPhoneMax = 40;
 export const createLeadBodyBusinessNameMax = 200;
 
 export const createLeadBodyPreferredDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const createLeadBodyPreferredSlotRegExp = new RegExp('^([01]\\d|2[0-3]):[0-5]\\d$');
 export const createLeadBodyMessageMax = 2000;
 
 export const createLeadBodyWebsiteMax = 200;
@@ -38,7 +39,7 @@ export const CreateLeadBody = zod.object({
   "packageInterest": zod.enum(['launchpad', 'presence', 'not-sure']).optional(),
   "preferredTime": zod.enum(['morning', 'afternoon', 'evening']).optional().describe('Optional best time of day for the callback'),
   "preferredDate": zod.string().regex(createLeadBodyPreferredDateRegExp).optional().describe('Optional preferred call date (YYYY-MM-DD); must not be in the past'),
-  "preferredSlot": zod.enum(['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00']).optional().describe('Optional preferred time slot (start of a 30-minute window); requires preferredDate'),
+  "preferredSlot": zod.string().regex(createLeadBodyPreferredSlotRegExp).optional().describe('Optional preferred time slot (start of a 30-minute window); requires preferredDate and must fall within the configured availability'),
   "message": zod.string().max(createLeadBodyMessageMax).optional(),
   "website": zod.string().max(createLeadBodyWebsiteMax).optional().describe('Honeypot field — must be left blank; non-empty submissions are discarded')
 })
@@ -72,6 +73,24 @@ export const GetBookedSlotsQueryParams = zod.object({
 export const GetBookedSlotsResponse = zod.object({
   "bookedSlots": zod.array(zod.string())
 })
+
+
+/**
+ * Returns the bookable time slots for each day of the week
+ * @summary Weekly call availability
+ */
+export const getAvailabilityResponseDaysItemDayOfWeekMin = 0;
+export const getAvailabilityResponseDaysItemDayOfWeekMax = 6;
+
+export const getAvailabilityResponseDaysItemSlotsItemRegExp = new RegExp('^([01]\\d|2[0-3]):[0-5]\\d$');
+
+
+export const GetAvailabilityResponse = zod.object({
+  "days": zod.array(zod.object({
+  "dayOfWeek": zod.number().min(getAvailabilityResponseDaysItemDayOfWeekMin).max(getAvailabilityResponseDaysItemDayOfWeekMax).describe('Day of week (0 = Sunday ... 6 = Saturday)'),
+  "slots": zod.array(zod.string().regex(getAvailabilityResponseDaysItemSlotsItemRegExp)).describe('Bookable slot start times for this day, sorted ascending')
+}))
+}).describe('Bookable slot start times (HH:MM) keyed by day of week')
 
 
 /**

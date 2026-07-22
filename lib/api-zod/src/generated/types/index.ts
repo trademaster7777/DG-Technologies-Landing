@@ -7,11 +7,12 @@
  */
 
 export * from './apiErrorResponse';
+export * from './availability';
 export * from './bookedSlots';
+export * from './dayAvailability';
 export * from './getBookedSlotsParams';
 export * from './healthStatus';
 export * from './lead';
 export * from './leadInput';
 export * from './leadInputPackageInterest';
-export * from './leadInputPreferredSlot';
 export * from './leadInputPreferredTime';

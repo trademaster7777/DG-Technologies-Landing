@@ -17,6 +17,27 @@ export interface ApiErrorResponse {
   error: string;
 }
 
+export interface DayAvailability {
+  /**
+     * Day of week (0 = Sunday ... 6 = Saturday)
+     * @minimum 0
+     * @maximum 6
+     */
+  dayOfWeek: number;
+  /**
+     * Bookable slot start times for this day, sorted ascending
+     * @items.pattern ^([01]\d|2[0-3]):[0-5]\d$
+     */
+  slots: string[];
+}
+
+/**
+ * Bookable slot start times (HH:MM) keyed by day of week
+ */
+export interface Availability {
+  days: DayAvailability[];
+}
+
 export type LeadInputPackageInterest = typeof LeadInputPackageInterest[keyof typeof LeadInputPackageInterest];
 
 
@@ -36,23 +57,6 @@ export const LeadInputPreferredTime = {
   morning: 'morning',
   afternoon: 'afternoon',
   evening: 'evening',
-} as const;
-
-/**
- * Optional preferred time slot (start of a 30-minute window); requires preferredDate
- */
-export type LeadInputPreferredSlot = typeof LeadInputPreferredSlot[keyof typeof LeadInputPreferredSlot];
-
-
-export const LeadInputPreferredSlot = {
-  '09:00': '09:00',
-  '10:00': '10:00',
-  '11:00': '11:00',
-  '12:00': '12:00',
-  '13:00': '13:00',
-  '14:00': '14:00',
-  '15:00': '15:00',
-  '16:00': '16:00',
 } as const;
 
 export interface LeadInput {
@@ -81,8 +85,11 @@ export interface LeadInput {
      * @pattern ^\d{4}-\d{2}-\d{2}$
      */
   preferredDate?: string;
-  /** Optional preferred time slot (start of a 30-minute window); requires preferredDate */
-  preferredSlot?: LeadInputPreferredSlot;
+  /**
+     * Optional preferred time slot (start of a 30-minute window); requires preferredDate and must fall within the configured availability
+     * @pattern ^([01]\d|2[0-3]):[0-5]\d$
+     */
+  preferredSlot?: string;
   /** @maxLength 2000 */
   message?: string;
   /**

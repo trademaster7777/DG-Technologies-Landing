@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   useCreateLead,
+  useGetAvailability,
   useGetBookedSlots,
   getGetBookedSlotsQueryKey,
 } from '@workspace/api-client-react';
@@ -12,16 +13,18 @@ const PACKAGE_OPTIONS = [
   { value: 'not-sure', label: 'Not sure yet' },
 ] as const;
 
-const SLOT_OPTIONS = [
-  { value: '09:00', label: '9:00 AM' },
-  { value: '10:00', label: '10:00 AM' },
-  { value: '11:00', label: '11:00 AM' },
-  { value: '12:00', label: '12:00 PM' },
-  { value: '13:00', label: '1:00 PM' },
-  { value: '14:00', label: '2:00 PM' },
-  { value: '15:00', label: '3:00 PM' },
-  { value: '16:00', label: '4:00 PM' },
-] as const;
+function slotLabel(slot: string): string {
+  const [hh, mm] = slot.split(':');
+  const h = Number(hh);
+  const suffix = h < 12 ? 'AM' : 'PM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${mm} ${suffix}`;
+}
+
+function dayOfWeekOf(dateStr: string): number {
+  const [y, mo, da] = dateStr.split('-').map(Number);
+  return new Date(y!, mo! - 1, da!).getDay();
+}
 
 function toDateString(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -55,6 +58,8 @@ export function FinalCTA() {
     },
   });
 
+  const availability = useGetAvailability();
+
   const now = new Date();
   const todayStr = toDateString(now);
 
@@ -70,12 +75,16 @@ export function FinalCTA() {
   );
   const bookedSlots = bookedSlotsQuery.data?.bookedSlots ?? [];
 
-  // On today's date, hide slots that have already started; on any date, hide
-  // slots another visitor already booked.
-  const availableSlots = SLOT_OPTIONS.filter((opt) => {
-    if (bookedSlots.includes(opt.value)) return false;
+  // Only offer slots the owner actually takes calls in (per day of week),
+  // minus slots another visitor already booked; on today's date, also hide
+  // slots that have already started.
+  const daySlots = preferredDate
+    ? (availability.data?.days.find((d) => d.dayOfWeek === dayOfWeekOf(preferredDate))?.slots ?? [])
+    : [];
+  const availableSlots = daySlots.filter((slot) => {
+    if (bookedSlots.includes(slot)) return false;
     if (preferredDate !== todayStr) return true;
-    const [hh] = opt.value.split(':').map(Number);
+    const [hh] = slot.split(':').map(Number);
     return hh! > now.getHours();
   });
 
@@ -92,19 +101,7 @@ export function FinalCTA() {
           ? { packageInterest: packageInterest as 'launchpad' | 'presence' | 'not-sure' }
           : {}),
         ...(preferredDate ? { preferredDate } : {}),
-        ...(preferredDate && preferredSlot
-          ? {
-              preferredSlot: preferredSlot as
-                | '09:00'
-                | '10:00'
-                | '11:00'
-                | '12:00'
-                | '13:00'
-                | '14:00'
-                | '15:00'
-                | '16:00',
-            }
-          : {}),
+        ...(preferredDate && preferredSlot ? { preferredSlot } : {}),
         ...(message.trim() ? { message: message.trim() } : {}),
         ...(website.trim() ? { website: website.trim() } : {}),
       },
@@ -283,28 +280,32 @@ export function FinalCTA() {
                         </span>
                         {availableSlots.length > 0 ? (
                           <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Time slot">
-                            {availableSlots.map((opt) => (
+                            {availableSlots.map((slot) => (
                               <button
-                                key={opt.value}
+                                key={slot}
                                 type="button"
                                 role="radio"
-                                aria-checked={preferredSlot === opt.value}
+                                aria-checked={preferredSlot === slot}
                                 onClick={() =>
-                                  setPreferredSlot(preferredSlot === opt.value ? null : opt.value)
+                                  setPreferredSlot(preferredSlot === slot ? null : slot)
                                 }
                                 className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-all duration-300 ${
-                                  preferredSlot === opt.value
+                                  preferredSlot === slot
                                     ? 'bg-gradient-to-r from-primary/30 to-accent/30 border-primary/60 text-foreground shadow-[0_0_20px_rgba(99,102,241,0.25)]'
                                     : 'bg-foreground/5 border-foreground/15 text-foreground/75 hover:border-foreground/30 hover:text-foreground'
                                 }`}
                               >
-                                {opt.label}
+                                {slotLabel(slot)}
                               </button>
                             ))}
                           </div>
                         ) : (
                           <p className="text-sm text-muted-foreground">
-                            No slots left today — pick another day, or submit without a slot and we'll call you back.
+                            {daySlots.length === 0 && !availability.isLoading
+                              ? "We don't take calls on that day — pick another day, or submit without a slot and we'll call you back."
+                              : availability.isLoading
+                                ? 'Loading available times…'
+                                : "No slots left today — pick another day, or submit without a slot and we'll call you back."}
                           </p>
                         )}
                       </div>

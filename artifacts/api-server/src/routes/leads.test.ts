@@ -102,6 +102,26 @@ describe("POST /api/leads", () => {
     expect(insertMock).not.toHaveBeenCalled();
   });
 
+  it("rejects a slot outside the configured availability", async () => {
+    // Default availability is 09:00-17:00 daily; 08:00 is never offered.
+    const res = await request(app)
+      .post("/api/leads")
+      .send({ ...validBody, preferredDate: "2099-01-05", preferredSlot: "08:00" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/isn't available/);
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it("accepts a slot inside the configured availability", async () => {
+    const res = await request(app)
+      .post("/api/leads")
+      .send({ ...validBody, preferredDate: "2099-01-05", preferredSlot: "10:00" });
+
+    expect(res.status).toBe(201);
+    expect(insertMock).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects invalid payloads with 400 without emailing", async () => {
     const res = await request(app).post("/api/leads").send({ name: "x" });
 

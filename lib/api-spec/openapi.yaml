@@ -77,6 +77,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiErrorResponse"
+  /availability:
+    get:
+      operationId: getAvailability
+      tags: [leads]
+      summary: Weekly call availability
+      description: Returns the bookable time slots for each day of the week
+      responses:
+        "200":
+          description: Weekly availability
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Availability"
   /healthz:
     get:
       operationId: healthCheck
@@ -115,6 +128,33 @@ components:
           type: string
       required:
         - error
+    Availability:
+      type: object
+      description: Bookable slot start times (HH:MM) keyed by day of week
+      properties:
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/DayAvailability"
+      required:
+        - days
+    DayAvailability:
+      type: object
+      properties:
+        dayOfWeek:
+          type: integer
+          minimum: 0
+          maximum: 6
+          description: Day of week (0 = Sunday ... 6 = Saturday)
+        slots:
+          type: array
+          items:
+            type: string
+            pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"
+          description: Bookable slot start times for this day, sorted ascending
+      required:
+        - dayOfWeek
+        - slots
     LeadInput:
       type: object
       properties:
@@ -146,8 +186,8 @@ components:
           description: Optional preferred call date (YYYY-MM-DD); must not be in the past
         preferredSlot:
           type: string
-          enum: ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"]
-          description: Optional preferred time slot (start of a 30-minute window); requires preferredDate
+          pattern: "^([01]\\d|2[0-3]):[0-5]\\d$"
+          description: Optional preferred time slot (start of a 30-minute window); requires preferredDate and must fall within the configured availability
         message:
           type: string
           maxLength: 2000

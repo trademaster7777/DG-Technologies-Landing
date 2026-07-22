@@ -9,6 +9,7 @@ import {
 } from "@workspace/api-zod";
 import { rateLimit } from "../lib/rateLimit";
 import { sendLeadNotification, sendVisitorConfirmation } from "../lib/mailer";
+import { isSlotAvailable } from "../lib/availability";
 
 const router: IRouter = Router();
 
@@ -82,6 +83,18 @@ router.post("/leads", ipLimiter, emailLimiter, async (req, res): Promise<void> =
         .json({ error: "The preferred call date can't be in the past" });
       return;
     }
+  }
+  // The slot must fall within the owner's configured availability for that
+  // day of the week — the same schedule the form offers.
+  if (
+    parsed.data.preferredSlot &&
+    parsed.data.preferredDate &&
+    !isSlotAvailable(parsed.data.preferredDate, parsed.data.preferredSlot)
+  ) {
+    res.status(400).json({
+      error: "That time slot isn't available on the selected day",
+    });
+    return;
   }
 
   // Honeypot: real visitors never fill this hidden field. Pretend success

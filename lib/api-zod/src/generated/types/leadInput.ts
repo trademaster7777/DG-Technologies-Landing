@@ -6,7 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { LeadInputPackageInterest } from './leadInputPackageInterest';
-import type { LeadInputPreferredSlot } from './leadInputPreferredSlot';
 import type { LeadInputPreferredTime } from './leadInputPreferredTime';
 
 export interface LeadInput {
@@ -35,8 +34,11 @@ export interface LeadInput {
      * @pattern ^\d{4}-\d{2}-\d{2}$
      */
   preferredDate?: string;
-  /** Optional preferred time slot (start of a 30-minute window); requires preferredDate */
-  preferredSlot?: LeadInputPreferredSlot;
+  /**
+     * Optional preferred time slot (start of a 30-minute window); requires preferredDate and must fall within the configured availability
+     * @pattern ^([01]\d|2[0-3]):[0-5]\d$
+     */
+  preferredSlot?: string;
   /** @maxLength 2000 */
   message?: string;
   /**
