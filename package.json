@@ -15,5 +15,16 @@
   "devDependencies": {
     "prettier": "^3.9.5",
     "typescript": "~5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "js-yaml": "^4.3.0",
+      "esbuild": ">=0.25.0"
+    },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "esbuild-plugin-pino>esbuild": ">=0.25.0"
+      }
+    }
   }
 }
