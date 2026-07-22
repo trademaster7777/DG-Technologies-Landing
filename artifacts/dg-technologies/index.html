@@ -126,7 +126,177 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!--
+        Static pre-render: visible to crawlers (GPTBot, ClaudeBot, PerplexityBot, Googlebot, etc.)
+        that do not execute JavaScript. React replaces this content on hydration for real users.
+      -->
+      <style>
+        #root-static{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:24px 20px;color:#111;line-height:1.6}
+        #root-static h1{font-size:2.5rem;font-weight:800;line-height:1.1;margin-bottom:1rem}
+        #root-static h2{font-size:1.75rem;font-weight:700;margin:2.5rem 0 1rem}
+        #root-static h3{font-size:1.25rem;font-weight:700;margin:1.5rem 0 0.5rem}
+        #root-static p{margin:0.5rem 0 1rem}
+        #root-static ul{padding-left:1.5rem;margin:0.5rem 0 1rem}
+        #root-static li{margin:0.35rem 0}
+        #root-static .trust-bar{display:flex;flex-wrap:wrap;gap:1rem;margin:1.5rem 0}
+        #root-static .trust-item::before{content:"✓ "}
+        #root-static .pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin:1.5rem 0}
+        @media(max-width:600px){#root-static .pricing-grid{grid-template-columns:1fr}}
+        #root-static .plan{border:1px solid #ddd;border-radius:12px;padding:1.5rem}
+        #root-static .plan-price{font-size:2rem;font-weight:800;margin:0.5rem 0}
+        #root-static details{margin:0.75rem 0;border-bottom:1px solid #eee;padding-bottom:0.75rem}
+        #root-static summary{font-weight:600;cursor:pointer;padding:0.25rem 0}
+        #root-static .cta-section{background:#f4f4f8;border-radius:12px;padding:2rem;margin:2.5rem 0;text-align:center}
+        #root-static nav{display:flex;justify-content:space-between;align-items:center;padding-bottom:1.5rem;border-bottom:1px solid #eee;margin-bottom:2rem}
+        #root-static .nav-links{display:flex;gap:1.5rem}
+        #root-static a{color:#4f46e5;text-decoration:none}
+      </style>
+      <div id="root-static">
+        <nav>
+          <strong>D2G Technology</strong>
+          <div class="nav-links">
+            <a href="#how-it-works">How It Works</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#faq">FAQ</a>
+          </div>
+        </nav>
+
+        <!-- Hero -->
+        <section>
+          <h1>Your Business Deserves to Be Found Online.</h1>
+          <p>We build clean, professional websites for small businesses, entrepreneurs, and solopreneurs — no tech skills required, no complicated process. Just a phone call, a plan, and a launch.</p>
+          <div class="trust-bar">
+            <span class="trust-item">Flat fees starting at $999</span>
+            <span class="trust-item">Done entirely over the phone</span>
+            <span class="trust-item">Launched in days, not months</span>
+          </div>
+          <p><a href="#book">Book Your Free Strategy Call →</a></p>
+        </section>
+
+        <!-- Problem -->
+        <section>
+          <h2>Most Small Business Websites Fail Before They Start</h2>
+          <p>Too expensive to build, too complicated to manage, and invisible to the customers who matter. D2G Technology solves all three — with simple flat fees, a process that happens entirely over the phone, and websites built to be found.</p>
+        </section>
+
+        <!-- How It Works -->
+        <section id="how-it-works">
+          <h2>How It Works</h2>
+          <p>Getting your business online shouldn't require a tech degree. Our simple four-step process handles everything:</p>
+          <ul>
+            <li><strong>Step 1 — Strategy Call (30 min):</strong> We learn about your business, your goals, and your customers. No forms to fill out — just a conversation.</li>
+            <li><strong>Step 2 — First Draft:</strong> We design and build your website. You don't lift a finger.</li>
+            <li><strong>Step 3 — Feedback Call:</strong> We walk through the site together and make any changes you want.</li>
+            <li><strong>Step 4 — Launch:</strong> Your website goes live. We make sure you know how to manage it going forward.</li>
+          </ul>
+        </section>
+
+        <!-- Why Us -->
+        <section>
+          <h2>Why Small Businesses Choose D2G Technology</h2>
+          <ul>
+            <li><strong>Done over the phone:</strong> No complicated online forms, no endless email chains. We handle everything through conversation.</li>
+            <li><strong>Flat-fee pricing:</strong> You know the price upfront. No hourly billing, no surprise invoices.</li>
+            <li><strong>Fast launch:</strong> Most sites go live in days or weeks — not months.</li>
+            <li><strong>Built to convert:</strong> Every site is designed to turn visitors into leads and customers.</li>
+            <li><strong>You own it:</strong> At handoff, the site is yours. We make sure you're comfortable managing it independently.</li>
+            <li><strong>SEO foundations included:</strong> On-page SEO is built in, so your site has a real chance of being found.</li>
+          </ul>
+        </section>
+
+        <!-- Pricing -->
+        <section id="pricing">
+          <h2>Simple, Flat-Fee Pricing</h2>
+          <p>No hourly billing. No surprise invoices. One price, one finished website.</p>
+          <div class="pricing-grid">
+            <div class="plan">
+              <h3>The Launchpad</h3>
+              <div class="plan-price">$999</div>
+              <p>A precision-engineered, single-page landing site designed strictly to convert visitors into leads.</p>
+              <ul>
+                <li>Custom High-Converting Landing Page</li>
+                <li>Mobile-First Responsive Design</li>
+                <li>Premium Branding Integration</li>
+                <li>Lead Capture Form Integration</li>
+                <li>Basic SEO Optimization</li>
+                <li>1 Round of Revisions</li>
+              </ul>
+            </div>
+            <div class="plan">
+              <h3>The Presence — Most Popular</h3>
+              <div class="plan-price">$1,499</div>
+              <p>A comprehensive 3-page website establishing serious authority and trust for your business.</p>
+              <ul>
+                <li>Full 3-Page Website (Home, About, Services)</li>
+                <li>Bespoke Premium Design</li>
+                <li>Advanced Lead Capture &amp; Contact Forms</li>
+                <li>Performance &amp; Speed Optimization</li>
+                <li>Comprehensive On-Page SEO</li>
+                <li>2 Rounds of Revisions</li>
+                <li>Priority Support</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section>
+          <h2>What Our Clients Say</h2>
+          <ul>
+            <li>"The whole process was painless. I didn't have to deal with any tech stuff — they handled everything. The site looks exactly how I imagined it." — Small Business Owner</li>
+            <li>"I was skeptical it could really be done over the phone, but it worked perfectly. Site was live in less than two weeks." — Entrepreneur</li>
+            <li>"The flat fee meant I knew exactly what I was spending. No nasty surprises at the end." — Solopreneur</li>
+          </ul>
+        </section>
+
+        <!-- AI / Visibility section -->
+        <section>
+          <h2>Get Found by AI Search Too</h2>
+          <p>Modern searches happen on ChatGPT, Perplexity, and Google's AI overviews — not just traditional search. We build your site with the structure and content that these AI tools can read and cite, so your business gets recommended when potential customers ask for the services you offer.</p>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq">
+          <h2>Frequently Asked Questions</h2>
+          <details open>
+            <summary>How much does a website cost?</summary>
+            <p>Simple flat fees: The Launchpad (single-page site) is $999 and The Presence (full 3-page website) is $1,499. No hourly billing, no surprises — we'll confirm the right fit on your free strategy call.</p>
+          </details>
+          <details>
+            <summary>How long does it take?</summary>
+            <p>Most projects follow our simple rhythm: strategy call, first draft, feedback call, launch. For most clients, that means going live in days or weeks — not months.</p>
+          </details>
+          <details>
+            <summary>Do I need to be tech-savvy?</summary>
+            <p>Not at all. The entire process happens over the phone, and at handoff we make sure you're comfortable managing your site going forward.</p>
+          </details>
+          <details>
+            <summary>What do you need from me?</summary>
+            <p>Just 30 minutes for the first call. We'll tell you if there's anything else (like photos or your logo) as we go.</p>
+          </details>
+          <details>
+            <summary>What if I already have a website?</summary>
+            <p>Great — we can rebuild or refresh it. The process is exactly the same, starting with a strategy call.</p>
+          </details>
+          <details>
+            <summary>What happens after launch?</summary>
+            <p>The website is yours. We equip you to manage it yourself — and we're a phone call away if you ever want help or upgrades.</p>
+          </details>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="cta-section">
+          <h2>Ready to Get Your Business Online?</h2>
+          <p>Book a free 30-minute strategy call. No commitment, no tech jargon — just a conversation about your business and what a website can do for it.</p>
+          <p><a href="#book"><strong>Book Your Free Strategy Call →</strong></a></p>
+        </section>
+
+        <footer>
+          <p>&copy; 2025 D2G Technology. All rights reserved. | <a href="/privacy">Privacy Policy</a> | <a href="/terms">Terms of Service</a></p>
+        </footer>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
