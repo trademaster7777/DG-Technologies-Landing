@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 import {
   useCreateLead,
   useGetAvailability,
   useGetBookedSlots,
   getGetBookedSlotsQueryKey,
 } from '@workspace/api-client-react';
+
+// Cloudflare Turnstile site key. The fallback is Cloudflare's official
+// always-pass test key so dev/preview work without account setup; set
+// VITE_TURNSTILE_SITE_KEY (plus TURNSTILE_SECRET_KEY on the API server)
+// to real keys for production.
+const TURNSTILE_SITE_KEY =
+  (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) ??
+  '1x00000000000000000000AA';
 
 const PACKAGE_OPTIONS = [
   { value: 'launchpad', label: 'The Launchpad — $999' },
@@ -44,6 +53,8 @@ export function FinalCTA() {
   const [message, setMessage] = useState('');
   const [website, setWebsite] = useState(''); // honeypot — humans never see or fill this
   const [submitted, setSubmitted] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const createLead = useCreateLead({
     mutation: {
@@ -54,6 +65,9 @@ export function FinalCTA() {
           setPreferredSlot(null);
           void bookedSlotsQuery.refetch();
         }
+        // Turnstile tokens are single-use; get a fresh one for the retry.
+        setTurnstileToken(null);
+        turnstileRef.current?.reset();
       },
     },
   });
@@ -90,7 +104,7 @@ export function FinalCTA() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (createLead.isPending) return;
+    if (createLead.isPending || !turnstileToken) return;
     createLead.mutate({
       data: {
         name: name.trim(),
@@ -104,6 +118,7 @@ export function FinalCTA() {
         ...(preferredDate && preferredSlot ? { preferredSlot } : {}),
         ...(message.trim() ? { message: message.trim() } : {}),
         ...(website.trim() ? { website: website.trim() } : {}),
+        turnstileToken,
       },
     });
   };
@@ -327,19 +342,35 @@ export function FinalCTA() {
                     />
                   </div>
 
+                  {/* Invisible bot challenge — only shows a widget if Cloudflare
+                      needs an interactive check for this visitor. */}
+                  <Turnstile
+                    ref={turnstileRef}
+                    siteKey={TURNSTILE_SITE_KEY}
+                    options={{ size: 'invisible', theme: 'dark' }}
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onExpire={() => {
+                      setTurnstileToken(null);
+                      turnstileRef.current?.reset();
+                    }}
+                    onError={() => setTurnstileToken(null)}
+                  />
+
                   {createLead.isError && (
                     <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3" role="alert">
                       {createLead.error?.status === 409
                         ? 'That time slot was just booked by someone else — please pick another one.'
                         : createLead.error?.status === 429
                           ? 'Too many attempts from your network — please wait a few minutes and try again.'
-                          : 'Something went wrong sending your info. Please try again — or double-check your email and phone number.'}
+                          : createLead.error?.status === 403
+                            ? "We couldn't confirm you're human — please reload the page and try again."
+                            : 'Something went wrong sending your info. Please try again — or double-check your email and phone number.'}
                     </p>
                   )}
 
                   <button
                     type="submit"
-                    disabled={createLead.isPending}
+                    disabled={createLead.isPending || !turnstileToken}
                     className="w-full relative inline-flex items-center justify-center px-8 py-4 rounded-full font-semibold text-white text-lg bg-gradient-to-r from-primary to-accent shadow-[0_0_30px_hsl(var(--primary)/0.35)] hover:shadow-[0_0_40px_hsl(var(--accent)/0.5)] transition-shadow duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {createLead.isPending ? 'Sending…' : 'Book My Free Strategy Call'}

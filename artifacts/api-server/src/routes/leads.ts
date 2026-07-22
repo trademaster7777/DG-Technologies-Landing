@@ -11,6 +11,7 @@ import {
   ReleaseLeadBookingResponse,
 } from "@workspace/api-zod";
 import { rateLimit } from "../lib/rateLimit";
+import { verifyTurnstileToken, usingTestTurnstileKeys } from "../lib/turnstile";
 import { sendLeadNotification, sendVisitorConfirmation } from "../lib/mailer";
 import { isSlotAvailable } from "../lib/availability";
 
@@ -126,6 +127,68 @@ router.post("/leads", ipLimiter, emailLimiter, async (req, res): Promise<void> =
     return;
   }
 
+  // Honeypot: real visitors never fill this hidden field. Checked before the
+  // Turnstile round-trip so naive bots get the stealth fake-201 without us
+  // spending a Cloudflare verification on them. Pretend success so bots
+  // can't tell they were filtered, but store nothing.
+  if (parsed.data.website && parsed.data.website.trim() !== "") {
+    req.log.warn("Honeypot triggered; discarding lead submission");
+    res.status(201).json(
+      CreateLeadResponse.parse({
+        id: 0,
+        name: parsed.data.name,
+        email: parsed.data.email,
+        phone: parsed.data.phone,
+        businessName: null,
+        packageInterest: null,
+        preferredTime: null,
+        preferredDate: null,
+        preferredSlot: null,
+        message: null,
+        createdAt: new Date(),
+      }),
+    );
+    return;
+  }
+
+  // Bot challenge: every lead must carry a Turnstile token, and the token
+  // must verify with Cloudflare. This is the backstop against bots that
+  // rotate IPs and emails past the rate limiters. If Cloudflare itself is
+  // unreachable (or the secret is misconfigured) we fail open — losing spam
+  // protection briefly is better than losing real leads.
+  // (Schema requires the token; the blank check guards whitespace-only.)
+  if (parsed.data.turnstileToken.trim() === "") {
+    req.log.warn("Lead submission missing Turnstile token; rejecting");
+    res.status(403).json({
+      error: "Bot check missing — please reload the page and try again",
+    });
+    return;
+  }
+  const turnstile = await verifyTurnstileToken(
+    parsed.data.turnstileToken,
+    req.ip,
+  );
+  if (turnstile.outcome === "fail") {
+    req.log.warn(
+      { errorCodes: turnstile.errorCodes },
+      "Turnstile verification failed; rejecting lead submission",
+    );
+    res.status(403).json({
+      error: "Bot check failed — please reload the page and try again",
+    });
+    return;
+  }
+  if (turnstile.outcome === "unavailable") {
+    req.log.error(
+      { reason: turnstile.reason },
+      "Turnstile verification unavailable; accepting lead without bot check",
+    );
+  } else if (usingTestTurnstileKeys()) {
+    req.log.warn(
+      "TURNSTILE_SECRET_KEY not set; using Cloudflare test keys (challenge always passes)",
+    );
+  }
+
   // Slot sanity: a slot without a date is meaningless, and past dates can't
   // be booked. Compare against the local calendar date to avoid timezone
   // edge cases rejecting "today".
@@ -166,28 +229,6 @@ router.post("/leads", ipLimiter, emailLimiter, async (req, res): Promise<void> =
     res.status(400).json({
       error: "That time slot isn't available on the selected day",
     });
-    return;
-  }
-
-  // Honeypot: real visitors never fill this hidden field. Pretend success
-  // so bots can't tell they were filtered, but store nothing.
-  if (parsed.data.website && parsed.data.website.trim() !== "") {
-    req.log.warn("Honeypot triggered; discarding lead submission");
-    res.status(201).json(
-      CreateLeadResponse.parse({
-        id: 0,
-        name: parsed.data.name,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        businessName: null,
-        packageInterest: null,
-        preferredTime: null,
-        preferredDate: null,
-        preferredSlot: null,
-        message: null,
-        createdAt: new Date(),
-      }),
-    );
     return;
   }
 

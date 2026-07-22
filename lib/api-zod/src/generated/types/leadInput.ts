@@ -46,4 +46,10 @@ export interface LeadInput {
      * @maxLength 200
      */
   website?: string;
+  /**
+     * Cloudflare Turnstile challenge token; verified server-side before the lead is accepted
+     * @minLength 1
+     * @maxLength 3000
+     */
+  turnstileToken: string;
 }

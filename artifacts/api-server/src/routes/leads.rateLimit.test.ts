@@ -43,6 +43,13 @@ vi.mock("../lib/mailer", () => ({
   sendVisitorConfirmation: vi.fn().mockResolvedValue("email-id"),
 }));
 
+// Mock Turnstile verification: always passes here — the bot challenge has
+// its own coverage in leads.test.ts, and these tests target rate limiting.
+vi.mock("../lib/turnstile", () => ({
+  verifyTurnstileToken: vi.fn(async () => ({ outcome: "pass" })),
+  usingTestTurnstileKeys: () => true,
+}));
+
 const { default: app } = await import("../app");
 
 const validBody = {
@@ -50,6 +57,7 @@ const validBody = {
   email: "jane@example.com",
   phone: "555-123-4567",
   message: "Please call me",
+  turnstileToken: "test-turnstile-token",
 };
 
 beforeEach(() => {

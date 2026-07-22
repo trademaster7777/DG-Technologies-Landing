@@ -26,6 +26,14 @@ vi.mock("../lib/mailer", () => ({
   sendVisitorConfirmation: sendVisitorConfirmationMock,
 }));
 
+// Mock Turnstile verification: no network calls in tests. Default is a
+// pass; individual tests override for fail/unavailable coverage.
+const verifyTurnstileTokenMock = vi.fn();
+vi.mock("../lib/turnstile", () => ({
+  verifyTurnstileToken: verifyTurnstileTokenMock,
+  usingTestTurnstileKeys: () => true,
+}));
+
 const { default: app } = await import("../app");
 
 const validBody = {
@@ -33,6 +41,7 @@ const validBody = {
   email: "jane@example.com",
   phone: "555-123-4567",
   message: "Please call me",
+  turnstileToken: "test-turnstile-token",
 };
 
 function persistedLead(overrides: Record<string, unknown> = {}) {
@@ -57,6 +66,7 @@ beforeEach(() => {
   insertedRows.length = 0;
   returningMock.mockResolvedValue([persistedLead()]);
   sendLeadNotificationMock.mockResolvedValue("email-id");
+  verifyTurnstileTokenMock.mockResolvedValue({ outcome: "pass" });
 });
 
 describe("POST /api/leads", () => {
@@ -120,6 +130,51 @@ describe("POST /api/leads", () => {
 
     expect(res.status).toBe(201);
     expect(insertMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects submissions without a Turnstile token (400, schema-required)", async () => {
+    const { turnstileToken: _omit, ...noToken } = validBody;
+    const res = await request(app).post("/api/leads").send(noToken);
+
+    expect(res.status).toBe(400);
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(verifyTurnstileTokenMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects submissions whose Turnstile token fails verification with 403", async () => {
+    verifyTurnstileTokenMock.mockResolvedValue({
+      outcome: "fail",
+      errorCodes: ["invalid-input-response"],
+    });
+
+    const res = await request(app).post("/api/leads").send(validBody);
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toMatch(/Bot check/);
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(sendLeadNotificationMock).not.toHaveBeenCalled();
+  });
+
+  it("fails open when Turnstile verification is unavailable", async () => {
+    verifyTurnstileTokenMock.mockResolvedValue({
+      outcome: "unavailable",
+      reason: "siteverify HTTP 503",
+    });
+
+    const res = await request(app).post("/api/leads").send(validBody);
+
+    expect(res.status).toBe(201);
+    expect(insertMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("honeypot submissions never trigger a Turnstile verification", async () => {
+    const res = await request(app)
+      .post("/api/leads")
+      .send({ ...validBody, website: "http://spam.example" });
+
+    expect(res.status).toBe(201);
+    expect(res.body.id).toBe(0);
+    expect(verifyTurnstileTokenMock).not.toHaveBeenCalled();
   });
 
   it("rejects invalid payloads with 400 without emailing", async () => {

@@ -246,10 +246,16 @@ components:
           type: string
           maxLength: 200
           description: Honeypot field — must be left blank; non-empty submissions are discarded
+        turnstileToken:
+          type: string
+          minLength: 1
+          maxLength: 3000
+          description: Cloudflare Turnstile challenge token; verified server-side before the lead is accepted
       required:
         - name
         - email
         - phone
+        - turnstileToken
     Lead:
       type: object
       properties:

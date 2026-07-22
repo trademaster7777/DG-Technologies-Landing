@@ -25,7 +25,7 @@ Single-page premium dark marketing site for D2G Technology (brand name per the u
 ## Where things live
 
 - Landing page app: `artifacts/dg-technologies`
-- Lead capture: booking form in `src/components/sections/FinalCTA.tsx` (section `#book`) → `POST /api/leads` (`artifacts/api-server/src/routes/leads.ts`) → `leads` table (`lib/db/src/schema/leads.ts`). Protected by per-IP rate limit (5/10min) + honeypot field.
+- Lead capture: booking form in `src/components/sections/FinalCTA.tsx` (section `#book`) → `POST /api/leads` (`artifacts/api-server/src/routes/leads.ts`) → `leads` table (`lib/db/src/schema/leads.ts`). Protected by per-IP + per-email rate limits, honeypot field, and a Cloudflare Turnstile bot challenge (`artifacts/api-server/src/lib/turnstile.ts`). Turnstile env: `VITE_TURNSTILE_SITE_KEY` (web) + `TURNSTILE_SECRET_KEY` (API) — unset means Cloudflare's always-pass test keys are used (fine for dev; set real keys before production). Verification fails open if Cloudflare is unreachable/misconfigured.
 - Lead email alerts: `artifacts/api-server/src/lib/mailer.ts` — Resend connector (`@replit/connectors-sdk` proxy). Sent after DB insert, awaited before the 201 but failures only logged (never breaks capture); honeypot submissions never email. NOTE: until a domain is verified in Resend, Resend only delivers to the Resend account owner's address.
 - Sections: `artifacts/dg-technologies/src/components/sections/`
 - Booking link (all CTAs): `artifacts/dg-technologies/src/lib/booking.ts` — swap `BOOKING_URL` here to point CTAs at Calendly/phone

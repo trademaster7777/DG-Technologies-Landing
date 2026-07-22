@@ -29,6 +29,8 @@ export const createLeadBodyMessageMax = 2000;
 
 export const createLeadBodyWebsiteMax = 200;
 
+export const createLeadBodyTurnstileTokenMax = 3000;
+
 
 
 export const CreateLeadBody = zod.object({
@@ -41,7 +43,8 @@ export const CreateLeadBody = zod.object({
   "preferredDate": zod.string().regex(createLeadBodyPreferredDateRegExp).optional().describe('Optional preferred call date (YYYY-MM-DD); must not be in the past'),
   "preferredSlot": zod.string().regex(createLeadBodyPreferredSlotRegExp).optional().describe('Optional preferred time slot (start of a 30-minute window); requires preferredDate and must fall within the configured availability'),
   "message": zod.string().max(createLeadBodyMessageMax).optional(),
-  "website": zod.string().max(createLeadBodyWebsiteMax).optional().describe('Honeypot field — must be left blank; non-empty submissions are discarded')
+  "website": zod.string().max(createLeadBodyWebsiteMax).optional().describe('Honeypot field — must be left blank; non-empty submissions are discarded'),
+  "turnstileToken": zod.string().min(1).max(createLeadBodyTurnstileTokenMax).describe('Cloudflare Turnstile challenge token; verified server-side before the lead is accepted')
 })
 
 export const CreateLeadResponse = zod.object({
