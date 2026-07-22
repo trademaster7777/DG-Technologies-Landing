@@ -13,15 +13,14 @@ import {
 import { rateLimit } from "../lib/rateLimit";
 import { verifyTurnstileToken, usingTestTurnstileKeys } from "../lib/turnstile";
 import { sendLeadNotification, sendVisitorConfirmation } from "../lib/mailer";
-import { isSlotAvailable } from "../lib/availability";
+import { getBusinessTimezone, isSlotAvailable } from "../lib/availability";
 
 const router: IRouter = Router();
 
 // Slot dates/times are interpreted in the business owner's timezone, set via
-// BUSINESS_TIMEZONE (IANA name, e.g. "America/New_York"). Falls back to the
-// server's timezone when unset — deployments often run in UTC, so setting it
-// is recommended.
-const BUSINESS_TIMEZONE = process.env.BUSINESS_TIMEZONE || undefined;
+// BUSINESS_TIMEZONE (IANA name, validated at startup in lib/availability;
+// defaults to America/New_York).
+const BUSINESS_TIMEZONE = getBusinessTimezone();
 
 // Calendar date (YYYY-MM-DD) and wall-clock time (HH:MM) in the business
 // timezone — the clock all date/slot comparisons in this file use.
@@ -190,8 +189,7 @@ router.post("/leads", ipLimiter, emailLimiter, async (req, res): Promise<void> =
   }
 
   // Slot sanity: a slot without a date is meaningless, and past dates can't
-  // be booked. Compare against the local calendar date to avoid timezone
-  // edge cases rejecting "today".
+  // be booked. "Today" is defined by the business timezone, not the server's.
   if (parsed.data.preferredSlot && !parsed.data.preferredDate) {
     res
       .status(400)

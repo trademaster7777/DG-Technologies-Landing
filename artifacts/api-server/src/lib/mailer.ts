@@ -1,4 +1,5 @@
 import { ReplitConnectors } from "@replit/connectors-sdk";
+import { getBusinessTimezoneLabel } from "./availability";
 
 export interface LeadEmailData {
   id: number;
@@ -35,7 +36,8 @@ function scheduledSlotLabel(
 ): string | null {
   if (!date) return null;
   const [y, m, d] = date.split("-").map(Number);
-  const dateLabel = new Date(y!, m! - 1, d!).toLocaleDateString("en-US", {
+  const dateLabel = new Date(Date.UTC(y!, m! - 1, d!)).toLocaleDateString("en-US", {
+    timeZone: "UTC",
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -45,7 +47,7 @@ function scheduledSlotLabel(
   const [hh, mm] = slot.split(":").map(Number);
   const hour12 = ((hh! + 11) % 12) + 1;
   const ampm = hh! < 12 ? "AM" : "PM";
-  return `${dateLabel} at ${hour12}:${String(mm!).padStart(2, "0")} ${ampm}`;
+  return `${dateLabel} at ${hour12}:${String(mm!).padStart(2, "0")} ${ampm} ${getBusinessTimezoneLabel()}`;
 }
 
 const EMAIL_TIMEOUT_MS = 8_000;

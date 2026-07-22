@@ -92,8 +92,10 @@ export const GetAvailabilityResponse = zod.object({
   "days": zod.array(zod.object({
   "dayOfWeek": zod.number().min(getAvailabilityResponseDaysItemDayOfWeekMin).max(getAvailabilityResponseDaysItemDayOfWeekMax).describe('Day of week (0 = Sunday ... 6 = Saturday)'),
   "slots": zod.array(zod.string().regex(getAvailabilityResponseDaysItemSlotsItemRegExp)).describe('Bookable slot start times for this day, sorted ascending')
-}))
-}).describe('Bookable slot start times (HH:MM) keyed by day of week')
+})),
+  "timezone": zod.string().describe('IANA timezone the schedule is anchored to (e.g. America\/New_York)'),
+  "timezoneLabel": zod.string().describe('Short display label for the timezone (e.g. ET)')
+}).describe('Bookable slot start times (HH:MM) keyed by day of week, anchored to the business timezone')
 
 
 /**

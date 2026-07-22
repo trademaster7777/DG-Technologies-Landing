@@ -181,14 +181,22 @@ components:
         - error
     Availability:
       type: object
-      description: Bookable slot start times (HH:MM) keyed by day of week
+      description: Bookable slot start times (HH:MM) keyed by day of week, anchored to the business timezone
       properties:
         days:
           type: array
           items:
             $ref: "#/components/schemas/DayAvailability"
+        timezone:
+          type: string
+          description: IANA timezone the schedule is anchored to (e.g. America/New_York)
+        timezoneLabel:
+          type: string
+          description: Short display label for the timezone (e.g. ET)
       required:
         - days
+        - timezone
+        - timezoneLabel
     DayAvailability:
       type: object
       properties:

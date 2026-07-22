@@ -32,10 +32,14 @@ export interface DayAvailability {
 }
 
 /**
- * Bookable slot start times (HH:MM) keyed by day of week
+ * Bookable slot start times (HH:MM) keyed by day of week, anchored to the business timezone
  */
 export interface Availability {
   days: DayAvailability[];
+  /** IANA timezone the schedule is anchored to (e.g. America/New_York) */
+  timezone: string;
+  /** Short display label for the timezone (e.g. ET) */
+  timezoneLabel: string;
 }
 
 export type LeadInputPackageInterest = typeof LeadInputPackageInterest[keyof typeof LeadInputPackageInterest];

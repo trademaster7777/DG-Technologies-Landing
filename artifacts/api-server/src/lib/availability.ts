@@ -17,6 +17,60 @@
 
 const DAY_NAMES = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
+/**
+ * The IANA timezone the schedule is anchored to. All slot times are wall-clock
+ * times in this zone, and "today"/"now" checks must use it — never the
+ * server's local timezone. Configurable via BUSINESS_TIMEZONE.
+ */
+const DEFAULT_TIMEZONE = "America/New_York";
+
+function resolveTimezone(): string {
+  const tz = process.env.BUSINESS_TIMEZONE?.trim() || DEFAULT_TIMEZONE;
+  try {
+    // Throws RangeError for unknown zones — fail fast on a bad config.
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+  } catch {
+    throw new Error(`BUSINESS_TIMEZONE: unknown IANA timezone "${tz}"`);
+  }
+  return tz;
+}
+
+const businessTimezone = resolveTimezone();
+
+export function getBusinessTimezone(): string {
+  return businessTimezone;
+}
+
+/** Short display label for the business timezone, e.g. "ET" or "GMT+2". */
+export function getBusinessTimezoneLabel(): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: businessTimezone,
+    timeZoneName: "short",
+  }).formatToParts(new Date());
+  const raw = parts.find((p) => p.type === "timeZoneName")?.value ?? "";
+  // Collapse US-style "EST"/"EDT" to the season-agnostic "ET".
+  const m = /^([A-Z])[SD]T$/.exec(raw);
+  return m ? `${m[1]}T` : raw;
+}
+
+/** Current date (YYYY-MM-DD) and hour (0-23) in the business timezone. */
+export function businessNow(): { date: string; hour: number } {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: businessTimezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+  const get = (type: string) =>
+    parts.find((p) => p.type === type)?.value ?? "";
+  return {
+    date: `${get("year")}-${get("month")}-${get("day")}`,
+    hour: Number(get("hour")),
+  };
+}
+
 const DEFAULT_SCHEDULE = "Mon-Sun 09:00-17:00";
 
 export interface DaySlots {
@@ -116,10 +170,14 @@ export function getAvailability(): DaySlots[] {
   return schedule;
 }
 
-/** Day of week (0-6) for a YYYY-MM-DD date string, in local time. */
+/**
+ * Day of week (0-6) for a YYYY-MM-DD date string. The string is a calendar
+ * date (already in the business timezone), so the weekday is a pure calendar
+ * computation — UTC construction keeps it independent of the server's zone.
+ */
 export function dayOfWeekOf(dateStr: string): number {
   const [y, mo, da] = dateStr.split("-").map(Number);
-  return new Date(y!, mo! - 1, da!).getDay();
+  return new Date(Date.UTC(y!, mo! - 1, da!)).getUTCDay();
 }
 
 export function isSlotAvailable(dateStr: string, slot: string): boolean {

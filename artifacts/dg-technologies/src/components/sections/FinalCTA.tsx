@@ -32,11 +32,36 @@ function slotLabel(slot: string): string {
 
 function dayOfWeekOf(dateStr: string): number {
   const [y, mo, da] = dateStr.split('-').map(Number);
-  return new Date(y!, mo! - 1, da!).getDay();
+  return new Date(Date.UTC(y!, mo! - 1, da!)).getUTCDay();
 }
 
 function toDateString(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * Current date (YYYY-MM-DD) and hour in the business timezone. Slot times are
+ * wall-clock times in that zone, so "today" and "already started" must be
+ * judged there — not in the visitor's local time.
+ */
+function nowInTimezone(timeZone: string | undefined): { date: string; hour: number } {
+  const now = new Date();
+  if (!timeZone) {
+    return { date: toDateString(now), hour: now.getHours() };
+  }
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(now);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+  return {
+    date: `${get('year')}-${get('month')}-${get('day')}`,
+    hour: Number(get('hour')),
+  };
 }
 
 const inputClasses =
@@ -73,9 +98,10 @@ export function FinalCTA() {
   });
 
   const availability = useGetAvailability();
+  const businessTimezone = availability.data?.timezone;
+  const timezoneLabel = availability.data?.timezoneLabel ?? '';
 
-  const now = new Date();
-  const todayStr = toDateString(now);
+  const { date: todayStr, hour: currentHour } = nowInTimezone(businessTimezone);
 
   // Fetch already-booked slots for the chosen date so visitors can't pick them.
   const bookedSlotsQuery = useGetBookedSlots(
@@ -99,7 +125,7 @@ export function FinalCTA() {
     if (bookedSlots.includes(slot)) return false;
     if (preferredDate !== todayStr) return true;
     const [hh] = slot.split(':').map(Number);
-    return hh! > now.getHours();
+    return hh! > currentHour;
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -292,6 +318,9 @@ export function FinalCTA() {
                       <div className="mt-3">
                         <span className="block text-sm font-medium text-foreground/85 mb-2">
                           Available time slots
+                          {timezoneLabel ? (
+                            <span className="text-foreground/55 font-normal"> (times in {timezoneLabel})</span>
+                          ) : null}
                         </span>
                         {availableSlots.length > 0 ? (
                           <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Time slot">
@@ -311,6 +340,7 @@ export function FinalCTA() {
                                 }`}
                               >
                                 {slotLabel(slot)}
+                                {timezoneLabel ? ` ${timezoneLabel}` : ''}
                               </button>
                             ))}
                           </div>
