@@ -62,6 +62,8 @@ beforeEach(() => {
       businessName: null,
       packageInterest: null,
       preferredTime: null,
+      preferredDate: null,
+      preferredSlot: null,
       message: validBody.message,
       createdAt: new Date(),
     },

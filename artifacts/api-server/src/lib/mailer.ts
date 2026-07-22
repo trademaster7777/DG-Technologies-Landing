@@ -8,6 +8,8 @@ export interface LeadEmailData {
   businessName: string | null;
   packageInterest: string | null;
   preferredTime: string | null;
+  preferredDate: string | null;
+  preferredSlot: string | null;
   message: string | null;
 }
 
@@ -20,6 +22,30 @@ const PREFERRED_TIME_LABELS: Record<string, string> = {
 function preferredTimeLabel(value: string | null): string | null {
   if (!value) return null;
   return PREFERRED_TIME_LABELS[value] ?? value;
+}
+
+/**
+ * Human-friendly "Tuesday, July 28 at 2:00 PM" label for a lead's chosen
+ * date + slot. Returns null when no date was picked; a date without a slot
+ * renders just the date.
+ */
+function scheduledSlotLabel(
+  date: string | null,
+  slot: string | null,
+): string | null {
+  if (!date) return null;
+  const [y, m, d] = date.split("-").map(Number);
+  const dateLabel = new Date(y!, m! - 1, d!).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  if (!slot) return dateLabel;
+  const [hh, mm] = slot.split(":").map(Number);
+  const hour12 = ((hh! + 11) % 12) + 1;
+  const ampm = hh! < 12 ? "AM" : "PM";
+  return `${dateLabel} at ${hour12}:${String(mm!).padStart(2, "0")} ${ampm}`;
 }
 
 const EMAIL_TIMEOUT_MS = 8_000;
@@ -73,6 +99,9 @@ export async function sendLeadNotification(
     `Email: ${lead.email}`,
     lead.businessName ? `Business: ${lead.businessName}` : null,
     lead.packageInterest ? `Package interest: ${lead.packageInterest}` : null,
+    scheduledSlotLabel(lead.preferredDate, lead.preferredSlot)
+      ? `Requested call slot: ${scheduledSlotLabel(lead.preferredDate, lead.preferredSlot)}`
+      : null,
     lead.preferredTime
       ? `Best time to call: ${preferredTimeLabel(lead.preferredTime)}`
       : null,
@@ -93,6 +122,10 @@ export async function sendLeadNotification(
     row("Email", lead.email) +
     row("Business", lead.businessName) +
     row("Package", lead.packageInterest) +
+    row(
+      "Requested call slot",
+      scheduledSlotLabel(lead.preferredDate, lead.preferredSlot),
+    ) +
     row("Best time to call", preferredTimeLabel(lead.preferredTime)) +
     row("Message", lead.message) +
     `</table>` +
@@ -127,12 +160,17 @@ export async function sendVisitorConfirmation(
   }
 
   const firstName = lead.name.trim().split(/\s+/)[0] || lead.name;
-  const subject = "Thanks — we'll call you within one business day";
+  const slotLabel = scheduledSlotLabel(lead.preferredDate, lead.preferredSlot);
+  const subject = slotLabel
+    ? `Your call is requested for ${slotLabel}`
+    : "Thanks — we'll call you within one business day";
 
   const textLines = [
     `Hi ${firstName},`,
     ``,
-    lead.preferredTime
+    slotLabel
+      ? `Thanks for requesting a call with D2G Technology — we've received your details and we'll call you at ${lead.phone} on ${slotLabel}. If anything comes up on our end, we'll reach out to reschedule.`
+      : lead.preferredTime
       ? `Thanks for requesting a call with D2G Technology — we've received your details and we'll call you at ${lead.phone} within one business day, aiming for your preferred time: ${preferredTimeLabel(lead.preferredTime)?.toLowerCase()}.`
       : `Thanks for requesting a call with D2G Technology — we've received your details and we'll call you at ${lead.phone} within one business day.`,
     lead.packageInterest ? `` : null,
@@ -149,8 +187,12 @@ export async function sendVisitorConfirmation(
   const html =
     `<div style="font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:520px;">` +
     `<h2 style="color:#111827;font-size:18px;margin:0 0 4px;">Thanks, ${escapeHtml(firstName)} — you're booked in</h2>` +
-    `<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 12px;">We've received your details and we'll call you at <strong>${escapeHtml(lead.phone)}</strong> within one business day.${
-      lead.preferredTime
+    `<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 12px;">${
+      slotLabel
+        ? `We've received your details and we'll call you at <strong>${escapeHtml(lead.phone)}</strong> on <strong>${escapeHtml(slotLabel)}</strong>.`
+        : `We've received your details and we'll call you at <strong>${escapeHtml(lead.phone)}</strong> within one business day.`
+    }${
+      !slotLabel && lead.preferredTime
         ? ` We'll aim for your preferred time: <strong>${escapeHtml(preferredTimeLabel(lead.preferredTime) ?? "")}</strong>.`
         : ""
     }</p>` +

@@ -10,6 +10,8 @@ export const leadsTable = pgTable("leads", {
   businessName: text("business_name"),
   packageInterest: text("package_interest"),
   preferredTime: text("preferred_time"),
+  preferredDate: text("preferred_date"),
+  preferredSlot: text("preferred_slot"),
   message: text("message"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

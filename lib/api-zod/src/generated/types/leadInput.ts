@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { LeadInputPackageInterest } from './leadInputPackageInterest';
+import type { LeadInputPreferredSlot } from './leadInputPreferredSlot';
 import type { LeadInputPreferredTime } from './leadInputPreferredTime';
 
 export interface LeadInput {
@@ -29,6 +30,13 @@ export interface LeadInput {
   packageInterest?: LeadInputPackageInterest;
   /** Optional best time of day for the callback */
   preferredTime?: LeadInputPreferredTime;
+  /**
+     * Optional preferred call date (YYYY-MM-DD); must not be in the past
+     * @pattern ^\d{4}-\d{2}-\d{2}$
+     */
+  preferredDate?: string;
+  /** Optional preferred time slot (start of a 30-minute window); requires preferredDate */
+  preferredSlot?: LeadInputPreferredSlot;
   /** @maxLength 2000 */
   message?: string;
   /**

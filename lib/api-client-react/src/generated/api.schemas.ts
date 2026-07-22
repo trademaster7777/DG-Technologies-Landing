@@ -34,6 +34,23 @@ export const LeadInputPreferredTime = {
   evening: 'evening',
 } as const;
 
+/**
+ * Optional preferred time slot (start of a 30-minute window); requires preferredDate
+ */
+export type LeadInputPreferredSlot = typeof LeadInputPreferredSlot[keyof typeof LeadInputPreferredSlot];
+
+
+export const LeadInputPreferredSlot = {
+  '09:00': '09:00',
+  '10:00': '10:00',
+  '11:00': '11:00',
+  '12:00': '12:00',
+  '13:00': '13:00',
+  '14:00': '14:00',
+  '15:00': '15:00',
+  '16:00': '16:00',
+} as const;
+
 export interface LeadInput {
   /**
      * @minLength 1
@@ -55,6 +72,13 @@ export interface LeadInput {
   packageInterest?: LeadInputPackageInterest;
   /** Optional best time of day for the callback */
   preferredTime?: LeadInputPreferredTime;
+  /**
+     * Optional preferred call date (YYYY-MM-DD); must not be in the past
+     * @pattern ^\d{4}-\d{2}-\d{2}$
+     */
+  preferredDate?: string;
+  /** Optional preferred time slot (start of a 30-minute window); requires preferredDate */
+  preferredSlot?: LeadInputPreferredSlot;
   /** @maxLength 2000 */
   message?: string;
   /**
@@ -75,6 +99,10 @@ export interface Lead {
   packageInterest: string | null;
   /** @nullable */
   preferredTime: string | null;
+  /** @nullable */
+  preferredDate: string | null;
+  /** @nullable */
+  preferredSlot: string | null;
   /** @nullable */
   message: string | null;
   createdAt: string;

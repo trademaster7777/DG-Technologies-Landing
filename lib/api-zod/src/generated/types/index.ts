@@ -11,4 +11,5 @@ export * from './healthStatus';
 export * from './lead';
 export * from './leadInput';
 export * from './leadInputPackageInterest';
+export * from './leadInputPreferredSlot';
 export * from './leadInputPreferredTime';

@@ -23,6 +23,7 @@ export const createLeadBodyPhoneMax = 40;
 
 export const createLeadBodyBusinessNameMax = 200;
 
+export const createLeadBodyPreferredDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
 export const createLeadBodyMessageMax = 2000;
 
 export const createLeadBodyWebsiteMax = 200;
@@ -36,6 +37,8 @@ export const CreateLeadBody = zod.object({
   "businessName": zod.string().max(createLeadBodyBusinessNameMax).optional(),
   "packageInterest": zod.enum(['launchpad', 'presence', 'not-sure']).optional(),
   "preferredTime": zod.enum(['morning', 'afternoon', 'evening']).optional().describe('Optional best time of day for the callback'),
+  "preferredDate": zod.string().regex(createLeadBodyPreferredDateRegExp).optional().describe('Optional preferred call date (YYYY-MM-DD); must not be in the past'),
+  "preferredSlot": zod.enum(['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00']).optional().describe('Optional preferred time slot (start of a 30-minute window); requires preferredDate'),
   "message": zod.string().max(createLeadBodyMessageMax).optional(),
   "website": zod.string().max(createLeadBodyWebsiteMax).optional().describe('Honeypot field — must be left blank; non-empty submissions are discarded')
 })
@@ -48,6 +51,8 @@ export const CreateLeadResponse = zod.object({
   "businessName": zod.string().nullable(),
   "packageInterest": zod.string().nullable(),
   "preferredTime": zod.string().nullable(),
+  "preferredDate": zod.string().nullable(),
+  "preferredSlot": zod.string().nullable(),
   "message": zod.string().nullable(),
   "createdAt": zod.coerce.date()
 })

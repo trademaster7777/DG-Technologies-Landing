@@ -17,6 +17,8 @@ const baseLead = {
   businessName: null,
   packageInterest: null,
   preferredTime: null,
+  preferredDate: null,
+  preferredSlot: null,
   message: null,
 };
 

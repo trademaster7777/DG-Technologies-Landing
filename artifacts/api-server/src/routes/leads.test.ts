@@ -44,6 +44,8 @@ function persistedLead(overrides: Record<string, unknown> = {}) {
     businessName: null,
     packageInterest: null,
     preferredTime: null,
+    preferredDate: null,
+    preferredSlot: null,
     message: validBody.message,
     createdAt: new Date("2026-07-22T00:00:00Z"),
     ...overrides,

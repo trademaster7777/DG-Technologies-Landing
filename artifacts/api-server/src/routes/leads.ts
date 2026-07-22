@@ -16,6 +16,26 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
     return;
   }
 
+  // Slot sanity: a slot without a date is meaningless, and past dates can't
+  // be booked. Compare against the local calendar date to avoid timezone
+  // edge cases rejecting "today".
+  if (parsed.data.preferredSlot && !parsed.data.preferredDate) {
+    res
+      .status(400)
+      .json({ error: "A time slot requires a date to go with it" });
+    return;
+  }
+  if (parsed.data.preferredDate) {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    if (parsed.data.preferredDate < today) {
+      res
+        .status(400)
+        .json({ error: "The preferred call date can't be in the past" });
+      return;
+    }
+  }
+
   // Honeypot: real visitors never fill this hidden field. Pretend success
   // so bots can't tell they were filtered, but store nothing.
   if (parsed.data.website && parsed.data.website.trim() !== "") {
@@ -29,6 +49,8 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
         businessName: null,
         packageInterest: null,
         preferredTime: null,
+        preferredDate: null,
+        preferredSlot: null,
         message: null,
         createdAt: new Date(),
       }),
@@ -45,6 +67,8 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
       businessName: parsed.data.businessName ?? null,
       packageInterest: parsed.data.packageInterest ?? null,
       preferredTime: parsed.data.preferredTime ?? null,
+      preferredDate: parsed.data.preferredDate ?? null,
+      preferredSlot: parsed.data.preferredSlot ?? null,
       message: parsed.data.message ?? null,
     })
     .returning();
@@ -63,6 +87,8 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
       businessName: lead!.businessName,
       packageInterest: lead!.packageInterest,
       preferredTime: lead!.preferredTime,
+      preferredDate: lead!.preferredDate,
+      preferredSlot: lead!.preferredSlot,
       message: lead!.message,
     });
     if (emailId) {
@@ -93,6 +119,8 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
       businessName: lead!.businessName,
       packageInterest: lead!.packageInterest,
       preferredTime: lead!.preferredTime,
+      preferredDate: lead!.preferredDate,
+      preferredSlot: lead!.preferredSlot,
       message: lead!.message,
     });
     if (confirmationId) {

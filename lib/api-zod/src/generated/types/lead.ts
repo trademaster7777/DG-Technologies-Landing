@@ -18,6 +18,10 @@ export interface Lead {
   /** @nullable */
   preferredTime: string | null;
   /** @nullable */
+  preferredDate: string | null;
+  /** @nullable */
+  preferredSlot: string | null;
+  /** @nullable */
   message: string | null;
   createdAt: Date;
 }
