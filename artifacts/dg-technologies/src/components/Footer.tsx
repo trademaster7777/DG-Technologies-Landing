@@ -9,8 +9,8 @@ export function Footer() {
           <LogoLockup markClassName="h-10" textClassName="mt-1.5 text-[10px]" />
           
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
+            <a href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-foreground transition-colors">Terms of Service</a>
           </div>
         </div>
         

@@ -7,6 +7,9 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ScrollProgress } from '@/components/ui/ScrollProgress';
 
+import PrivacyPolicy from '@/pages/privacy';
+import TermsOfService from '@/pages/terms';
+
 import { Hero } from '@/components/sections/Hero';
 import { Problem } from '@/components/sections/Problem';
 import { HowItWorks } from '@/components/sections/HowItWorks';
@@ -107,6 +110,8 @@ function App() {
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <Switch>
         <Route path="/" component={LandingPage} />
+        <Route path="/privacy" component={PrivacyPolicy} />
+        <Route path="/terms" component={TermsOfService} />
         {/* Fallback to root for any other path since it's a SPA */}
         <Route component={LandingPage} />
       </Switch>
