@@ -13,6 +13,51 @@ import { isSlotAvailable } from "../lib/availability";
 
 const router: IRouter = Router();
 
+// Slot dates/times are interpreted in the business owner's timezone, set via
+// BUSINESS_TIMEZONE (IANA name, e.g. "America/New_York"). Falls back to the
+// server's timezone when unset — deployments often run in UTC, so setting it
+// is recommended.
+const BUSINESS_TIMEZONE = process.env.BUSINESS_TIMEZONE || undefined;
+
+// Calendar date (YYYY-MM-DD) and wall-clock time (HH:MM) in the business
+// timezone — the clock all date/slot comparisons in this file use.
+function localDateString(now: Date): string {
+  // en-CA formats as YYYY-MM-DD.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: BUSINESS_TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}
+function localTimeString(now: Date): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: BUSINESS_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(now);
+}
+
+// All bookable slot start times (must mirror the preferredSlot enum in the
+// API schema).
+const ALL_SLOTS = [
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+];
+
+// A slot is in the past when its date is today and its start time (HH:MM)
+// has already been reached. Slot strings sort lexicographically as times.
+function slotHasPassed(date: string, slot: string, now: Date): boolean {
+  return date === localDateString(now) && slot <= localTimeString(now);
+}
+
 // Two-layer rate limiting. Offices, mobile carriers, and VPNs put many
 // legitimate visitors behind one IP, so the per-IP limit is generous and
 // mostly guards against floods. The tighter limit is per email address, so
@@ -50,9 +95,22 @@ router.get("/leads/slots", async (req, res): Promise<void> => {
       ),
     );
 
+  // For today, also report slots whose start time has already passed as
+  // unavailable, so clients can't offer them even if they skip their own
+  // client-side filtering.
+  const now = new Date();
+  const passedSlots = ALL_SLOTS.filter((slot) =>
+    slotHasPassed(parsed.data.date, slot, now),
+  );
+
   res.json(
     GetBookedSlotsResponse.parse({
-      bookedSlots: rows.map((r) => r.slot).filter((s): s is string => !!s),
+      bookedSlots: [
+        ...new Set([
+          ...rows.map((r) => r.slot).filter((s): s is string => !!s),
+          ...passedSlots,
+        ]),
+      ],
     }),
   );
 });
@@ -76,11 +134,22 @@ router.post("/leads", ipLimiter, emailLimiter, async (req, res): Promise<void> =
   }
   if (parsed.data.preferredDate) {
     const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const today = localDateString(now);
     if (parsed.data.preferredDate < today) {
       res
         .status(400)
         .json({ error: "The preferred call date can't be in the past" });
+      return;
+    }
+    // Same-day bookings must still be in the future: the form hides slots
+    // that already started, but direct API calls need the same guard.
+    if (
+      parsed.data.preferredSlot &&
+      slotHasPassed(parsed.data.preferredDate, parsed.data.preferredSlot, now)
+    ) {
+      res
+        .status(400)
+        .json({ error: "That time slot has already passed today" });
       return;
     }
   }
