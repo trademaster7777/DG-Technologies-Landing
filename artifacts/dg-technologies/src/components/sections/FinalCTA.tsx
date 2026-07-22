@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCreateLead } from '@workspace/api-client-react';
+import {
+  useCreateLead,
+  useGetBookedSlots,
+  getGetBookedSlotsQueryKey,
+} from '@workspace/api-client-react';
 
 const PACKAGE_OPTIONS = [
   { value: 'launchpad', label: 'The Launchpad — $999' },
@@ -41,13 +45,35 @@ export function FinalCTA() {
   const createLead = useCreateLead({
     mutation: {
       onSuccess: () => setSubmitted(true),
+      onError: (error) => {
+        if (error?.status === 409) {
+          // Someone grabbed the slot first — clear it and refresh availability.
+          setPreferredSlot(null);
+          void bookedSlotsQuery.refetch();
+        }
+      },
     },
   });
 
   const now = new Date();
   const todayStr = toDateString(now);
-  // On today's date, hide slots that have already started.
+
+  // Fetch already-booked slots for the chosen date so visitors can't pick them.
+  const bookedSlotsQuery = useGetBookedSlots(
+    { date: preferredDate },
+    {
+      query: {
+        queryKey: getGetBookedSlotsQueryKey({ date: preferredDate }),
+        enabled: !!preferredDate,
+      },
+    },
+  );
+  const bookedSlots = bookedSlotsQuery.data?.bookedSlots ?? [];
+
+  // On today's date, hide slots that have already started; on any date, hide
+  // slots another visitor already booked.
   const availableSlots = SLOT_OPTIONS.filter((opt) => {
+    if (bookedSlots.includes(opt.value)) return false;
     if (preferredDate !== todayStr) return true;
     const [hh] = opt.value.split(':').map(Number);
     return hh! > now.getHours();
@@ -302,9 +328,11 @@ export function FinalCTA() {
 
                   {createLead.isError && (
                     <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3" role="alert">
-                      {createLead.error?.status === 429
-                        ? 'Too many attempts from your network — please wait a few minutes and try again.'
-                        : 'Something went wrong sending your info. Please try again — or double-check your email and phone number.'}
+                      {createLead.error?.status === 409
+                        ? 'That time slot was just booked by someone else — please pick another one.'
+                        : createLead.error?.status === 429
+                          ? 'Too many attempts from your network — please wait a few minutes and try again.'
+                          : 'Something went wrong sending your info. Please try again — or double-check your email and phone number.'}
                     </p>
                   )}
 

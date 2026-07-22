@@ -1,6 +1,12 @@
 import { Router, type IRouter } from "express";
+import { and, eq, isNotNull } from "drizzle-orm";
 import { db, leadsTable } from "@workspace/db";
-import { CreateLeadBody, CreateLeadResponse } from "@workspace/api-zod";
+import {
+  CreateLeadBody,
+  CreateLeadResponse,
+  GetBookedSlotsQueryParams,
+  GetBookedSlotsResponse,
+} from "@workspace/api-zod";
 import { rateLimit } from "../lib/rateLimit";
 import { sendLeadNotification, sendVisitorConfirmation } from "../lib/mailer";
 
@@ -22,6 +28,32 @@ const emailLimiter = rateLimit({
     }
     return `email:${email.trim().toLowerCase()}`;
   },
+});
+
+router.get("/leads/slots", async (req, res): Promise<void> => {
+  const parsed = GetBookedSlotsQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res
+      .status(400)
+      .json({ error: "A valid date (YYYY-MM-DD) is required" });
+    return;
+  }
+
+  const rows = await db
+    .select({ slot: leadsTable.preferredSlot })
+    .from(leadsTable)
+    .where(
+      and(
+        eq(leadsTable.preferredDate, parsed.data.date),
+        isNotNull(leadsTable.preferredSlot),
+      ),
+    );
+
+  res.json(
+    GetBookedSlotsResponse.parse({
+      bookedSlots: rows.map((r) => r.slot).filter((s): s is string => !!s),
+    }),
+  );
 });
 
 router.post("/leads", ipLimiter, emailLimiter, async (req, res): Promise<void> => {
@@ -74,20 +106,46 @@ router.post("/leads", ipLimiter, emailLimiter, async (req, res): Promise<void> =
     return;
   }
 
-  const [lead] = await db
-    .insert(leadsTable)
-    .values({
-      name: parsed.data.name,
-      email: parsed.data.email,
-      phone: parsed.data.phone,
-      businessName: parsed.data.businessName ?? null,
-      packageInterest: parsed.data.packageInterest ?? null,
-      preferredTime: parsed.data.preferredTime ?? null,
-      preferredDate: parsed.data.preferredDate ?? null,
-      preferredSlot: parsed.data.preferredSlot ?? null,
-      message: parsed.data.message ?? null,
-    })
-    .returning();
+  let lead;
+  try {
+    [lead] = await db
+      .insert(leadsTable)
+      .values({
+        name: parsed.data.name,
+        email: parsed.data.email,
+        phone: parsed.data.phone,
+        businessName: parsed.data.businessName ?? null,
+        packageInterest: parsed.data.packageInterest ?? null,
+        preferredTime: parsed.data.preferredTime ?? null,
+        preferredDate: parsed.data.preferredDate ?? null,
+        preferredSlot: parsed.data.preferredSlot ?? null,
+        message: parsed.data.message ?? null,
+      })
+      .returning();
+  } catch (err) {
+    // Unique index on (preferred_date, preferred_slot) makes double-booking
+    // race-safe: the second concurrent insert fails with 23505.
+    if (
+      err &&
+      typeof err === "object" &&
+      ((err as { code?: string }).code === "23505" ||
+        (err as { cause?: { code?: string } }).cause?.code === "23505")
+    ) {
+      req.log.warn(
+        {
+          preferredDate: parsed.data.preferredDate,
+          preferredSlot: parsed.data.preferredSlot,
+        },
+        "Slot already booked; rejecting lead submission",
+      );
+      res.status(409).json({
+        error:
+          "That time slot was just booked by someone else — please pick another one",
+      });
+      return;
+    }
+    throw err;
+  }
 
   req.log.info({ leadId: lead!.id }, "Lead captured");
 

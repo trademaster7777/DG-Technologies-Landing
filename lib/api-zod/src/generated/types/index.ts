@@ -7,6 +7,8 @@
  */
 
 export * from './apiErrorResponse';
+export * from './bookedSlots';
+export * from './getBookedSlotsParams';
 export * from './healthStatus';
 export * from './lead';
 export * from './leadInput';

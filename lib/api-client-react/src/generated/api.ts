@@ -21,6 +21,8 @@ import type {
 
 import type {
   ApiErrorResponse,
+  BookedSlots,
+  GetBookedSlotsParams,
   HealthStatus,
   Lead,
   LeadInput
@@ -124,6 +126,91 @@ export const useCreateLead = <TError = ErrorType<ApiErrorResponse>,
       > => {
       return useMutation(getCreateLeadMutationOptions(options));
     }
+
+export const getGetBookedSlotsUrl = (params: GetBookedSlotsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/leads/slots?${stringifiedParams}` : `/api/leads/slots`
+}
+
+/**
+ * Returns the time slots already claimed by other leads on the given date
+ * @summary List booked time slots for a date
+ */
+export const getBookedSlots = async (params: GetBookedSlotsParams, options?: RequestInit): Promise<BookedSlots> => {
+
+  return customFetch<BookedSlots>(getGetBookedSlotsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetBookedSlotsQueryKey = (params?: GetBookedSlotsParams,) => {
+    return [
+    `/api/leads/slots`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetBookedSlotsQueryOptions = <TData = Awaited<ReturnType<typeof getBookedSlots>>, TError = ErrorType<ApiErrorResponse>>(params: GetBookedSlotsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBookedSlots>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetBookedSlotsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getBookedSlots>>> = ({ signal }) => getBookedSlots(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getBookedSlots>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetBookedSlotsQueryResult = NonNullable<Awaited<ReturnType<typeof getBookedSlots>>>
+export type GetBookedSlotsQueryError = ErrorType<ApiErrorResponse>
+
+
+/**
+ * @summary List booked time slots for a date
+ */
+
+export function useGetBookedSlots<TData = Awaited<ReturnType<typeof getBookedSlots>>, TError = ErrorType<ApiErrorResponse>>(
+ params: GetBookedSlotsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getBookedSlots>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetBookedSlotsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getHealthCheckUrl = () => {
 

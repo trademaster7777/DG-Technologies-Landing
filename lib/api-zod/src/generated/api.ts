@@ -59,6 +59,22 @@ export const CreateLeadResponse = zod.object({
 
 
 /**
+ * Returns the time slots already claimed by other leads on the given date
+ * @summary List booked time slots for a date
+ */
+export const getBookedSlotsQueryDateRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetBookedSlotsQueryParams = zod.object({
+  "date": zod.coerce.string().regex(getBookedSlotsQueryDateRegExp).describe('Date to check (YYYY-MM-DD)')
+})
+
+export const GetBookedSlotsResponse = zod.object({
+  "bookedSlots": zod.array(zod.string())
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

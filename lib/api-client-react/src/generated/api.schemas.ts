@@ -9,6 +9,10 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface BookedSlots {
+  bookedSlots: string[];
+}
+
 export interface ApiErrorResponse {
   error: string;
 }
@@ -107,4 +111,12 @@ export interface Lead {
   message: string | null;
   createdAt: string;
 }
+
+export type GetBookedSlotsParams = {
+/**
+ * Date to check (YYYY-MM-DD)
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+date: string;
+};
 
