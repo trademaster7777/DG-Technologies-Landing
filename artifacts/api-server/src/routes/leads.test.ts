@@ -13,6 +13,9 @@ const insertMock = vi.fn(() => ({ values: valuesMock }));
 
 vi.mock("@workspace/db", () => ({
   db: { insert: insertMock },
+  // Rate limiting is covered in leads.rateLimit.test.ts; here the shared
+  // store always reports the first hit of a fresh window.
+  pool: { query: vi.fn(async () => ({ rows: [{ count: 1 }] })) },
   leadsTable: {},
 }));
 

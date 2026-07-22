@@ -13,8 +13,28 @@ const returningMock = vi.fn();
 const valuesMock = vi.fn(() => ({ returning: returningMock }));
 const insertMock = vi.fn(() => ({ values: valuesMock }));
 
+// In-memory model of the shared rate_limit_buckets table. It faithfully
+// mirrors the atomic upsert the limiter issues against Postgres.
+const buckets = new Map<string, { count: number; resetAt: number }>();
+const queryMock = vi.fn(async (text: string, params: unknown[]) => {
+  if (text.startsWith("DELETE")) {
+    const now = params[0] as number;
+    for (const [k, b] of buckets) if (b.resetAt <= now) buckets.delete(k);
+    return { rows: [] };
+  }
+  const [key, resetAt, now] = params as [string, number, number];
+  const bucket = buckets.get(key);
+  if (!bucket || bucket.resetAt <= now) {
+    buckets.set(key, { count: 1, resetAt });
+    return { rows: [{ count: 1 }] };
+  }
+  bucket.count += 1;
+  return { rows: [{ count: bucket.count }] };
+});
+
 vi.mock("@workspace/db", () => ({
   db: { insert: insertMock },
+  pool: { query: queryMock },
   leadsTable: {},
 }));
 
