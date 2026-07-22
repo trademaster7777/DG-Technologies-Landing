@@ -75,14 +75,18 @@ afterAll(() => {
 });
 
 describe("POST /api/leads rate limiting", () => {
-  it("allows 5 rapid submissions from one IP, rejects the 6th with 429, then resets after the window", async () => {
+  beforeEach(() => {
+    buckets.clear();
+  });
+
+  it("allows 5 rapid submissions from one email, rejects the 6th with 429, then resets after the window", async () => {
     // First 5 submissions in the window succeed
     for (let i = 1; i <= 5; i++) {
       const res = await request(app).post("/api/leads").send(validBody);
       expect(res.status, `submission #${i} should succeed`).toBe(201);
     }
 
-    // 6th rapid submission from the same IP is rejected
+    // 6th rapid submission with the same email is rejected
     const blocked = await request(app).post("/api/leads").send(validBody);
     expect(blocked.status).toBe(429);
     expect(blocked.body.error).toMatch(/too many requests/i);
@@ -96,5 +100,37 @@ describe("POST /api/leads rate limiting", () => {
     vi.advanceTimersByTime(2);
     const afterReset = await request(app).post("/api/leads").send(validBody);
     expect(afterReset.status).toBe(201);
+  });
+
+  it("does not block other visitors on the same IP when one email hits its limit", async () => {
+    // One coworker exhausts their per-email allowance
+    for (let i = 1; i <= 5; i++) {
+      const res = await request(app).post("/api/leads").send(validBody);
+      expect(res.status).toBe(201);
+    }
+    const blocked = await request(app).post("/api/leads").send(validBody);
+    expect(blocked.status).toBe(429);
+
+    // A different visitor behind the same IP still gets through
+    const other = await request(app)
+      .post("/api/leads")
+      .send({ ...validBody, email: "colleague@example.com" });
+    expect(other.status).toBe(201);
+  });
+
+  it("still caps total submissions per IP at 20 per window", async () => {
+    // 20 submissions from unique emails all succeed
+    for (let i = 1; i <= 20; i++) {
+      const res = await request(app)
+        .post("/api/leads")
+        .send({ ...validBody, email: `visitor${i}@example.com` });
+      expect(res.status, `submission #${i} should succeed`).toBe(201);
+    }
+
+    // The 21st from the same IP is rejected even with a fresh email
+    const blocked = await request(app)
+      .post("/api/leads")
+      .send({ ...validBody, email: "visitor21@example.com" });
+    expect(blocked.status).toBe(429);
   });
 });

@@ -13,9 +13,16 @@ import { pool } from "@workspace/db";
 export function rateLimit({
   windowMs,
   max,
+  keyGenerator,
 }: {
   windowMs: number;
   max: number;
+  /**
+   * Derives the bucket key from the request. Defaults to the client IP.
+   * Return null to skip rate limiting for this request (e.g. no email in
+   * the body — validation will reject it anyway).
+   */
+  keyGenerator?: (req: Parameters<RequestHandler>[0]) => string | null;
 }): RequestHandler {
   // Periodically drop expired buckets so the table doesn't grow unbounded.
   const cleanup = setInterval(() => {
@@ -30,7 +37,13 @@ export function rateLimit({
   cleanup.unref?.();
 
   return async (req, res, next) => {
-    const key = req.ip ?? "unknown";
+    const key = keyGenerator
+      ? keyGenerator(req)
+      : `ip:${req.ip ?? "unknown"}`;
+    if (key === null) {
+      next();
+      return;
+    }
     const now = Date.now();
 
     try {

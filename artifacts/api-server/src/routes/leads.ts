@@ -6,9 +6,25 @@ import { sendLeadNotification, sendVisitorConfirmation } from "../lib/mailer";
 
 const router: IRouter = Router();
 
-const leadsLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 5 });
+// Two-layer rate limiting. Offices, mobile carriers, and VPNs put many
+// legitimate visitors behind one IP, so the per-IP limit is generous and
+// mostly guards against floods. The tighter limit is per email address, so
+// one over-eager submitter can't lock out their coworkers.
+const ipLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 20 });
+const emailLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  keyGenerator: (req) => {
+    const email = (req.body as { email?: unknown } | undefined)?.email;
+    if (typeof email !== "string" || email.trim() === "") {
+      // No usable email — validation will reject the request anyway.
+      return null;
+    }
+    return `email:${email.trim().toLowerCase()}`;
+  },
+});
 
-router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
+router.post("/leads", ipLimiter, emailLimiter, async (req, res): Promise<void> => {
   const parsed = CreateLeadBody.safeParse(req.body);
   if (!parsed.success) {
     req.log.warn({ errors: parsed.error.message }, "Invalid lead submission");
