@@ -22,6 +22,18 @@ export const LeadInputPackageInterest = {
   'not-sure': 'not-sure',
 } as const;
 
+/**
+ * Optional best time of day for the callback
+ */
+export type LeadInputPreferredTime = typeof LeadInputPreferredTime[keyof typeof LeadInputPreferredTime];
+
+
+export const LeadInputPreferredTime = {
+  morning: 'morning',
+  afternoon: 'afternoon',
+  evening: 'evening',
+} as const;
+
 export interface LeadInput {
   /**
      * @minLength 1
@@ -41,6 +53,8 @@ export interface LeadInput {
   /** @maxLength 200 */
   businessName?: string;
   packageInterest?: LeadInputPackageInterest;
+  /** Optional best time of day for the callback */
+  preferredTime?: LeadInputPreferredTime;
   /** @maxLength 2000 */
   message?: string;
   /**
@@ -59,6 +73,8 @@ export interface Lead {
   businessName: string | null;
   /** @nullable */
   packageInterest: string | null;
+  /** @nullable */
+  preferredTime: string | null;
   /** @nullable */
   message: string | null;
   createdAt: string;

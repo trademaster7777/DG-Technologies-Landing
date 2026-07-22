@@ -16,6 +16,8 @@ export interface Lead {
   /** @nullable */
   packageInterest: string | null;
   /** @nullable */
+  preferredTime: string | null;
+  /** @nullable */
   message: string | null;
   createdAt: Date;
 }

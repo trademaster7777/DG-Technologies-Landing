@@ -94,6 +94,10 @@ components:
         packageInterest:
           type: string
           enum: [launchpad, presence, not-sure]
+        preferredTime:
+          type: string
+          enum: [morning, afternoon, evening]
+          description: Optional best time of day for the callback
         message:
           type: string
           maxLength: 2000
@@ -120,6 +124,8 @@ components:
           type: ["string", "null"]
         packageInterest:
           type: ["string", "null"]
+        preferredTime:
+          type: ["string", "null"]
         message:
           type: ["string", "null"]
         createdAt:
@@ -132,6 +138,7 @@ components:
         - phone
         - businessName
         - packageInterest
+        - preferredTime
         - message
         - createdAt
 

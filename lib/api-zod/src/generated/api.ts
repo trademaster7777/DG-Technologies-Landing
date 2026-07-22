@@ -35,6 +35,7 @@ export const CreateLeadBody = zod.object({
   "phone": zod.string().min(createLeadBodyPhoneMin).max(createLeadBodyPhoneMax),
   "businessName": zod.string().max(createLeadBodyBusinessNameMax).optional(),
   "packageInterest": zod.enum(['launchpad', 'presence', 'not-sure']).optional(),
+  "preferredTime": zod.enum(['morning', 'afternoon', 'evening']).optional().describe('Optional best time of day for the callback'),
   "message": zod.string().max(createLeadBodyMessageMax).optional(),
   "website": zod.string().max(createLeadBodyWebsiteMax).optional().describe('Honeypot field — must be left blank; non-empty submissions are discarded')
 })
@@ -46,6 +47,7 @@ export const CreateLeadResponse = zod.object({
   "phone": zod.string(),
   "businessName": zod.string().nullable(),
   "packageInterest": zod.string().nullable(),
+  "preferredTime": zod.string().nullable(),
   "message": zod.string().nullable(),
   "createdAt": zod.coerce.date()
 })

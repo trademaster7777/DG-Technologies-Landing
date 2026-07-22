@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { LeadInputPackageInterest } from './leadInputPackageInterest';
+import type { LeadInputPreferredTime } from './leadInputPreferredTime';
 
 export interface LeadInput {
   /**
@@ -26,6 +27,8 @@ export interface LeadInput {
   /** @maxLength 200 */
   businessName?: string;
   packageInterest?: LeadInputPackageInterest;
+  /** Optional best time of day for the callback */
+  preferredTime?: LeadInputPreferredTime;
   /** @maxLength 2000 */
   message?: string;
   /**

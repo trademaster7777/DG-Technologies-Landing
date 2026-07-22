@@ -8,6 +8,12 @@ const PACKAGE_OPTIONS = [
   { value: 'not-sure', label: 'Not sure yet' },
 ] as const;
 
+const TIME_OPTIONS = [
+  { value: 'morning', label: 'Morning' },
+  { value: 'afternoon', label: 'Afternoon' },
+  { value: 'evening', label: 'Evening' },
+] as const;
+
 const inputClasses =
   'w-full rounded-xl bg-foreground/5 border border-foreground/15 px-4 py-3.5 text-foreground placeholder:text-foreground/45 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/30 transition-colors';
 
@@ -17,6 +23,7 @@ export function FinalCTA() {
   const [phone, setPhone] = useState('');
   const [businessName, setBusinessName] = useState('');
   const [packageInterest, setPackageInterest] = useState<string | null>(null);
+  const [preferredTime, setPreferredTime] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [website, setWebsite] = useState(''); // honeypot — humans never see or fill this
   const [submitted, setSubmitted] = useState(false);
@@ -38,6 +45,9 @@ export function FinalCTA() {
         ...(businessName.trim() ? { businessName: businessName.trim() } : {}),
         ...(packageInterest
           ? { packageInterest: packageInterest as 'launchpad' | 'presence' | 'not-sure' }
+          : {}),
+        ...(preferredTime
+          ? { preferredTime: preferredTime as 'morning' | 'afternoon' | 'evening' }
           : {}),
         ...(message.trim() ? { message: message.trim() } : {}),
         ...(website.trim() ? { website: website.trim() } : {}),
@@ -185,6 +195,32 @@ export function FinalCTA() {
                           }
                           className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-all duration-300 ${
                             packageInterest === opt.value
+                              ? 'bg-gradient-to-r from-primary/30 to-accent/30 border-primary/60 text-foreground shadow-[0_0_20px_rgba(99,102,241,0.25)]'
+                              : 'bg-foreground/5 border-foreground/15 text-foreground/75 hover:border-foreground/30 hover:text-foreground'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="block text-sm font-medium text-foreground/85 mb-2">
+                      Best time to call you?
+                    </span>
+                    <div className="flex flex-wrap gap-3" role="radiogroup" aria-label="Best time to call">
+                      {TIME_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={preferredTime === opt.value}
+                          onClick={() =>
+                            setPreferredTime(preferredTime === opt.value ? null : opt.value)
+                          }
+                          className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-all duration-300 ${
+                            preferredTime === opt.value
                               ? 'bg-gradient-to-r from-primary/30 to-accent/30 border-primary/60 text-foreground shadow-[0_0_20px_rgba(99,102,241,0.25)]'
                               : 'bg-foreground/5 border-foreground/15 text-foreground/75 hover:border-foreground/30 hover:text-foreground'
                           }`}

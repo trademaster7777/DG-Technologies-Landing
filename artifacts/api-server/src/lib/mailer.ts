@@ -7,7 +7,19 @@ export interface LeadEmailData {
   phone: string;
   businessName: string | null;
   packageInterest: string | null;
+  preferredTime: string | null;
   message: string | null;
+}
+
+const PREFERRED_TIME_LABELS: Record<string, string> = {
+  morning: "Morning (before 12pm)",
+  afternoon: "Afternoon (12–5pm)",
+  evening: "Evening (after 5pm)",
+};
+
+function preferredTimeLabel(value: string | null): string | null {
+  if (!value) return null;
+  return PREFERRED_TIME_LABELS[value] ?? value;
 }
 
 const EMAIL_TIMEOUT_MS = 8_000;
@@ -61,6 +73,9 @@ export async function sendLeadNotification(
     `Email: ${lead.email}`,
     lead.businessName ? `Business: ${lead.businessName}` : null,
     lead.packageInterest ? `Package interest: ${lead.packageInterest}` : null,
+    lead.preferredTime
+      ? `Best time to call: ${preferredTimeLabel(lead.preferredTime)}`
+      : null,
     lead.message ? `` : null,
     lead.message ? `Message:` : null,
     lead.message ? lead.message : null,
@@ -78,6 +93,7 @@ export async function sendLeadNotification(
     row("Email", lead.email) +
     row("Business", lead.businessName) +
     row("Package", lead.packageInterest) +
+    row("Best time to call", preferredTimeLabel(lead.preferredTime)) +
     row("Message", lead.message) +
     `</table>` +
     `<p style="color:#6b7280;font-size:13px;margin:16px 0 0;">Reply to this email to answer ${escapeHtml(lead.name)} directly.</p>` +
@@ -116,7 +132,9 @@ export async function sendVisitorConfirmation(
   const textLines = [
     `Hi ${firstName},`,
     ``,
-    `Thanks for requesting a call with D2G Technology — we've received your details and we'll call you at ${lead.phone} within one business day.`,
+    lead.preferredTime
+      ? `Thanks for requesting a call with D2G Technology — we've received your details and we'll call you at ${lead.phone} within one business day, aiming for your preferred time: ${preferredTimeLabel(lead.preferredTime)?.toLowerCase()}.`
+      : `Thanks for requesting a call with D2G Technology — we've received your details and we'll call you at ${lead.phone} within one business day.`,
     lead.packageInterest ? `` : null,
     lead.packageInterest
       ? `You mentioned you're interested in: ${lead.packageInterest}. We'll come prepared to talk it through.`
@@ -131,7 +149,11 @@ export async function sendVisitorConfirmation(
   const html =
     `<div style="font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:520px;">` +
     `<h2 style="color:#111827;font-size:18px;margin:0 0 4px;">Thanks, ${escapeHtml(firstName)} — you're booked in</h2>` +
-    `<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 12px;">We've received your details and we'll call you at <strong>${escapeHtml(lead.phone)}</strong> within one business day.</p>` +
+    `<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 12px;">We've received your details and we'll call you at <strong>${escapeHtml(lead.phone)}</strong> within one business day.${
+      lead.preferredTime
+        ? ` We'll aim for your preferred time: <strong>${escapeHtml(preferredTimeLabel(lead.preferredTime) ?? "")}</strong>.`
+        : ""
+    }</p>` +
     (lead.packageInterest
       ? `<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 12px;">You mentioned you're interested in <strong>${escapeHtml(lead.packageInterest)}</strong> — we'll come prepared to talk it through.</p>`
       : "") +

@@ -28,6 +28,7 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
         phone: parsed.data.phone,
         businessName: null,
         packageInterest: null,
+        preferredTime: null,
         message: null,
         createdAt: new Date(),
       }),
@@ -43,6 +44,7 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
       phone: parsed.data.phone,
       businessName: parsed.data.businessName ?? null,
       packageInterest: parsed.data.packageInterest ?? null,
+      preferredTime: parsed.data.preferredTime ?? null,
       message: parsed.data.message ?? null,
     })
     .returning();
@@ -60,6 +62,7 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
       phone: lead!.phone,
       businessName: lead!.businessName,
       packageInterest: lead!.packageInterest,
+      preferredTime: lead!.preferredTime,
       message: lead!.message,
     });
     if (emailId) {
@@ -89,6 +92,7 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
       phone: lead!.phone,
       businessName: lead!.businessName,
       packageInterest: lead!.packageInterest,
+      preferredTime: lead!.preferredTime,
       message: lead!.message,
     });
     if (confirmationId) {
