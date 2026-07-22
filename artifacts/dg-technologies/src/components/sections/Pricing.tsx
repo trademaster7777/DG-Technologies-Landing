@@ -98,14 +98,14 @@ export function Pricing() {
           </motion.div>
 
           {/* Card 2: Presence */}
-          <motion.div variants={item} className="relative rounded-3xl p-[2px] overflow-hidden order-1 md:order-2 h-[105%] flex flex-col shadow-[0_0_50px_rgba(59,130,246,0.1)]">
+          <motion.div variants={item} className="relative rounded-3xl p-[2px] overflow-hidden order-1 md:order-2 h-[105%] flex flex-col shadow-[0_0_50px_hsl(var(--primary)/0.1)]">
             {/* Animated border */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-primary opacity-50 animate-[spin_4s_linear_infinite] scale-[2.0]" />
             <div className="absolute inset-0 bg-background/90 rounded-3xl backdrop-blur-3xl m-[1px]" />
             
             <div className="relative z-10 bg-background/75 dark:bg-black/40 rounded-3xl p-8 md:p-10 h-full flex flex-col">
               <div className="absolute top-0 right-8 -translate-y-1/2">
-                <span className="bg-gradient-to-r from-primary to-accent text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(139,92,246,0.5)] tracking-wider">
+                <span className="bg-gradient-to-r from-primary to-accent text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-[0_0_15px_hsl(var(--accent)/0.5)] tracking-wider">
                   MOST POPULAR
                 </span>
               </div>

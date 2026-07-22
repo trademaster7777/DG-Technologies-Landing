@@ -39,7 +39,7 @@
 }
 
 :root {
-  /* Light theme — cool near-white, same electric blue / violet brand accents */
+  /* Light theme — cool near-white, logo azure / glass-cyan brand accents (from the D2G logo's "2") */
   --background: 220 33% 98%; /* #F7F9FC */
   --foreground: 228 25% 10%;
 
@@ -49,9 +49,9 @@
 
   --border: 228 25% 10% / 0.1;
   --input: 228 25% 10% / 0.12;
-  --ring: 217 91% 55%;
+  --ring: 205 85% 45%;
 
-  --primary: 217 91% 55%; /* Electric Blue (slightly deepened for light bg) */
+  --primary: 205 85% 45%; /* Logo azure (deepened for light bg) */
   --primary-foreground: 0 0% 100%;
 
   --secondary: 220 25% 94%;
@@ -60,7 +60,7 @@
   --muted: 220 25% 93%;
   --muted-foreground: 228 12% 38%;
 
-  --accent: 262 83% 56%; /* Violet */
+  --accent: 194 85% 38%; /* Logo glass cyan (deepened for light bg) */
   --accent-foreground: 0 0% 100%;
 
   --destructive: 0 78% 50%;
@@ -82,9 +82,9 @@
 
   --border: 0 0% 100% / 0.1;
   --input: 0 0% 100% / 0.1;
-  --ring: 217 91% 60%;
+  --ring: 205 90% 44%;
 
-  --primary: 217 91% 60%; /* Electric Blue */
+  --primary: 205 90% 44%; /* Logo azure (deep enough for white button text) */
   --primary-foreground: 0 0% 100%;
 
   --secondary: 240 20% 10%;
@@ -93,7 +93,7 @@
   --muted: 240 20% 12%;
   --muted-foreground: 240 12% 80%;
 
-  --accent: 262 83% 58%; /* Violet */
+  --accent: 194 90% 36%; /* Logo glass cyan (deep enough for white button text) */
   --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
@@ -141,8 +141,8 @@
   }
   
   .aurora-bg {
-    background: radial-gradient(circle at 40% 50%, rgba(59, 130, 246, 0.15), transparent 50%),
-                radial-gradient(circle at 60% 30%, rgba(139, 92, 246, 0.15), transparent 50%);
+    background: radial-gradient(circle at 40% 50%, hsl(var(--primary) / 0.15), transparent 50%),
+                radial-gradient(circle at 60% 30%, hsl(var(--accent) / 0.15), transparent 50%);
     filter: blur(80px);
     z-index: -1;
     animation: aurora-drift 60s ease-in-out infinite alternate;

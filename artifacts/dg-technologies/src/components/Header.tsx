@@ -150,7 +150,7 @@ export function Header() {
               <a
                 href={BOOKING_URL}
                 onClick={() => setMenuOpen(false)}
-                className="mt-4 rounded-full bg-gradient-to-r from-blue-500 to-violet-500 text-white text-center font-semibold py-3.5"
+                className="mt-4 rounded-full bg-gradient-to-r from-primary to-accent text-white text-center font-semibold py-3.5"
               >
                 Book a Free Call
               </a>

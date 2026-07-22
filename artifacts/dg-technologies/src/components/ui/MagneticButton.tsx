@@ -38,7 +38,7 @@ export const MagneticButton = React.forwardRef<HTMLButtonElement, MagneticButton
     };
 
     const variants = {
-      primary: "bg-gradient-to-r from-primary to-accent text-white shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] border border-white/10",
+      primary: "bg-gradient-to-r from-primary to-accent text-white shadow-[0_0_20px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_30px_hsl(var(--accent)/0.5)] border border-white/10",
       secondary: "bg-foreground/5 text-foreground hover:bg-foreground/10 border border-foreground/10 backdrop-blur-md",
       outline: "bg-transparent text-foreground border border-foreground/20 hover:border-foreground/40 hover:bg-foreground/5",
       ghost: "bg-transparent text-foreground hover:bg-foreground/5"

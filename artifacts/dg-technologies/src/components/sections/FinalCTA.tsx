@@ -136,7 +136,7 @@ export function FinalCTA() {
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
                   className="text-center py-10"
                 >
-                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-[0_0_40px_rgba(99,102,241,0.5)]">
+                  <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-[0_0_40px_hsl(var(--primary)/0.5)]">
                     <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
@@ -248,7 +248,7 @@ export function FinalCTA() {
                           }
                           className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-all duration-300 ${
                             packageInterest === opt.value
-                              ? 'bg-gradient-to-r from-primary/30 to-accent/30 border-primary/60 text-foreground shadow-[0_0_20px_rgba(99,102,241,0.25)]'
+                              ? 'bg-gradient-to-r from-primary/30 to-accent/30 border-primary/60 text-foreground shadow-[0_0_20px_hsl(var(--primary)/0.25)]'
                               : 'bg-foreground/5 border-foreground/15 text-foreground/75 hover:border-foreground/30 hover:text-foreground'
                           }`}
                         >
@@ -291,7 +291,7 @@ export function FinalCTA() {
                                 }
                                 className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-all duration-300 ${
                                   preferredSlot === slot
-                                    ? 'bg-gradient-to-r from-primary/30 to-accent/30 border-primary/60 text-foreground shadow-[0_0_20px_rgba(99,102,241,0.25)]'
+                                    ? 'bg-gradient-to-r from-primary/30 to-accent/30 border-primary/60 text-foreground shadow-[0_0_20px_hsl(var(--primary)/0.25)]'
                                     : 'bg-foreground/5 border-foreground/15 text-foreground/75 hover:border-foreground/30 hover:text-foreground'
                                 }`}
                               >
@@ -340,7 +340,7 @@ export function FinalCTA() {
                   <button
                     type="submit"
                     disabled={createLead.isPending}
-                    className="w-full relative inline-flex items-center justify-center px-8 py-4 rounded-full font-semibold text-white text-lg bg-gradient-to-r from-primary to-accent shadow-[0_0_30px_rgba(59,130,246,0.35)] hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] transition-shadow duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full relative inline-flex items-center justify-center px-8 py-4 rounded-full font-semibold text-white text-lg bg-gradient-to-r from-primary to-accent shadow-[0_0_30px_hsl(var(--primary)/0.35)] hover:shadow-[0_0_40px_hsl(var(--accent)/0.5)] transition-shadow duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {createLead.isPending ? 'Sending…' : 'Book My Free Strategy Call'}
                   </button>

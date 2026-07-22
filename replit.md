@@ -29,7 +29,7 @@ Single-page premium dark marketing site for D2G Technology (brand name per the u
 - Lead email alerts: `artifacts/api-server/src/lib/mailer.ts` — Resend connector (`@replit/connectors-sdk` proxy). Sent after DB insert, awaited before the 201 but failures only logged (never breaks capture); honeypot submissions never email. NOTE: until a domain is verified in Resend, Resend only delivers to the Resend account owner's address.
 - Sections: `artifacts/dg-technologies/src/components/sections/`
 - Booking link (all CTAs): `artifacts/dg-technologies/src/lib/booking.ts` — swap `BOOKING_URL` here to point CTAs at Calendly/phone
-- Theme: `artifacts/dg-technologies/src/index.css` (`:root` = light palette, `.dark` = dark palette). Toggle: `src/components/ThemeProvider.tsx` + `src/components/ui/ThemeToggle.tsx` — `dark` class on `<html>`, persisted in localStorage `d2g-theme`, dark is the default, `?theme=light|dark` URL override (handy for screenshots)
+- Theme: `artifacts/dg-technologies/src/index.css` (`:root` = light palette, `.dark` = dark palette). Brand accents come from the uploaded logo: `--primary` = logo azure, `--accent` = logo glass cyan (the original violet accent was retired at the owner's request — no purple anywhere). Toggle: `src/components/ThemeProvider.tsx` + `src/components/ui/ThemeToggle.tsx` — `dark` class on `<html>`, persisted in localStorage `d2g-theme`, dark is the default, `?theme=light|dark` URL override (handy for screenshots)
 - Original copy/design brief: `attached_assets/Pasted--Replit-Agent-Prompt-DG-Technologies-Landing-Page-Copy-_1784651014656.txt`
 
 ## Architecture decisions
