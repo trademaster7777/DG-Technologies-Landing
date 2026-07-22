@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 
 // Concrete, small-business examples of what an AI setup can do.
 const AI_EXAMPLES = [
-  'Answer customer questions 24/7',
-  'Follow up with every lead automatically',
+  'Custom AI Agents',
+  'Company Knowledge Base',
   'Draft your emails, quotes, and posts',
 ];
 
