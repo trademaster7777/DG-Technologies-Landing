@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { db, leadsTable } from "@workspace/db";
 import { CreateLeadBody, CreateLeadResponse } from "@workspace/api-zod";
 import { rateLimit } from "../lib/rateLimit";
-import { sendLeadNotification } from "../lib/mailer";
+import { sendLeadNotification, sendVisitorConfirmation } from "../lib/mailer";
 
 const router: IRouter = Router();
 
@@ -74,6 +74,38 @@ router.post("/leads", leadsLimiter, async (req, res): Promise<void> => {
     req.log.error(
       { err, leadId: lead!.id },
       "Failed to send lead notification email",
+    );
+  }
+
+  // Confirm to the visitor as well. Same isolation: a failure here is only
+  // logged and never breaks lead capture. Skipped entirely when no verified
+  // sender is configured (LEAD_FROM_EMAIL unset) — the shared resend.dev
+  // sender cannot email arbitrary visitor addresses.
+  try {
+    const confirmationId = await sendVisitorConfirmation({
+      id: lead!.id,
+      name: lead!.name,
+      email: lead!.email,
+      phone: lead!.phone,
+      businessName: lead!.businessName,
+      packageInterest: lead!.packageInterest,
+      message: lead!.message,
+    });
+    if (confirmationId) {
+      req.log.info(
+        { leadId: lead!.id, emailId: confirmationId },
+        "Visitor confirmation email sent",
+      );
+    } else {
+      req.log.warn(
+        { leadId: lead!.id },
+        "LEAD_FROM_EMAIL not set; visitor confirmation email skipped",
+      );
+    }
+  } catch (err) {
+    req.log.error(
+      { err, leadId: lead!.id },
+      "Failed to send visitor confirmation email",
     );
   }
 

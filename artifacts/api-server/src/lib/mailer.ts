@@ -83,6 +83,81 @@ export async function sendLeadNotification(
     `<p style="color:#6b7280;font-size:13px;margin:16px 0 0;">Reply to this email to answer ${escapeHtml(lead.name)} directly.</p>` +
     `</div>`;
 
+    return sendEmail({
+    from,
+    to,
+    reply_to: lead.email,
+    subject,
+    text: textLines.join("\n"),
+    html,
+  });
+}
+
+/**
+ * Send a short branded confirmation to the visitor who just booked a call.
+ *
+ * Returns the Resend email id on success, or `null` when no verified sender
+ * is configured — the shared onboarding@resend.dev sender cannot email
+ * arbitrary visitor addresses, so this requires LEAD_FROM_EMAIL to be set to
+ * an address on a Resend-verified domain. Throws on delivery errors — callers
+ * must treat those as non-fatal for lead capture.
+ */
+export async function sendVisitorConfirmation(
+  lead: LeadEmailData,
+): Promise<string | null> {
+  const from = process.env.LEAD_FROM_EMAIL;
+  if (!from) {
+    return null;
+  }
+
+  const firstName = lead.name.trim().split(/\s+/)[0] || lead.name;
+  const subject = "Thanks — we'll call you within one business day";
+
+  const textLines = [
+    `Hi ${firstName},`,
+    ``,
+    `Thanks for requesting a call with D2G Technology — we've received your details and we'll call you at ${lead.phone} within one business day.`,
+    lead.packageInterest ? `` : null,
+    lead.packageInterest
+      ? `You mentioned you're interested in: ${lead.packageInterest}. We'll come prepared to talk it through.`
+      : null,
+    ``,
+    `If anything changes in the meantime, just reply to this email.`,
+    ``,
+    `Talk soon,`,
+    `The D2G Technology team`,
+  ].filter((line): line is string => line !== null);
+
+  const html =
+    `<div style="font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:520px;">` +
+    `<h2 style="color:#111827;font-size:18px;margin:0 0 4px;">Thanks, ${escapeHtml(firstName)} — you're booked in</h2>` +
+    `<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 12px;">We've received your details and we'll call you at <strong>${escapeHtml(lead.phone)}</strong> within one business day.</p>` +
+    (lead.packageInterest
+      ? `<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 12px;">You mentioned you're interested in <strong>${escapeHtml(lead.packageInterest)}</strong> — we'll come prepared to talk it through.</p>`
+      : "") +
+    `<p style="color:#374151;font-size:14px;line-height:1.6;margin:0 0 16px;">If anything changes in the meantime, just reply to this email.</p>` +
+    `<p style="color:#6b7280;font-size:13px;margin:0;">Talk soon,<br/>The D2G Technology team</p>` +
+    `</div>`;
+
+  return sendEmail({
+    from,
+    to: lead.email,
+    subject,
+    text: textLines.join("\n"),
+    html,
+  });
+}
+
+interface SendEmailPayload {
+  from: string;
+  to: string;
+  reply_to?: string;
+  subject: string;
+  text: string;
+  html: string;
+}
+
+async function sendEmail(payload: SendEmailPayload): Promise<string> {
   // Fresh client per send — the SDK resolves identity/tokens per request and
   // must not be cached across token expiry.
   const connectors = new ReplitConnectors();
@@ -92,14 +167,7 @@ export async function sendLeadNotification(
     const response = await Promise.race([
       connectors.proxy("resend", "/emails", {
         method: "POST",
-        body: {
-          from,
-          to,
-          reply_to: lead.email,
-          subject,
-          text: textLines.join("\n"),
-          html,
-        },
+        body: payload,
       }),
       new Promise<never>((_, reject) => {
         timer = setTimeout(
