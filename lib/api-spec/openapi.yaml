@@ -90,6 +90,57 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Availability"
+  /leads/{id}/booking:
+    delete:
+      operationId: releaseLeadBooking
+      tags: [leads]
+      summary: Release a lead's booked time slot (admin)
+      description: Clears the lead's preferred date and slot so the slot becomes bookable again. Requires the X-Admin-Token header to match the server's ADMIN_TOKEN.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: Lead ID
+        - name: X-Admin-Token
+          in: header
+          required: true
+          schema:
+            type: string
+          description: Admin token; must match the server's ADMIN_TOKEN
+      responses:
+        "200":
+          description: Booking released; the updated lead is returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "401":
+          description: Missing or incorrect admin token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "404":
+          description: Lead not found or has no booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "503":
+          description: Admin token not configured on the server
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
   /healthz:
     get:
       operationId: healthCheck

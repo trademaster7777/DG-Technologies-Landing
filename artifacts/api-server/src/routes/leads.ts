@@ -1,11 +1,14 @@
 import { Router, type IRouter } from "express";
 import { and, eq, isNotNull } from "drizzle-orm";
 import { db, leadsTable } from "@workspace/db";
+import { timingSafeEqual } from "node:crypto";
 import {
   CreateLeadBody,
   CreateLeadResponse,
   GetBookedSlotsQueryParams,
   GetBookedSlotsResponse,
+  ReleaseLeadBookingParams,
+  ReleaseLeadBookingResponse,
 } from "@workspace/api-zod";
 import { rateLimit } from "../lib/rateLimit";
 import { sendLeadNotification, sendVisitorConfirmation } from "../lib/mailer";
@@ -298,6 +301,60 @@ router.post("/leads", ipLimiter, emailLimiter, async (req, res): Promise<void> =
   }
 
   res.status(201).json(CreateLeadResponse.parse(lead));
+});
+
+// Admin: release a lead's booked slot so it becomes bookable again.
+// Guarded by ADMIN_TOKEN — a shared secret only the owner knows. Constant-time
+// comparison avoids leaking the token via response timing.
+router.delete("/leads/:id/booking", async (req, res): Promise<void> => {
+  const adminToken = process.env.ADMIN_TOKEN;
+  if (!adminToken) {
+    res.status(503).json({
+      error: "Admin actions are unavailable: ADMIN_TOKEN is not configured",
+    });
+    return;
+  }
+
+  const provided = req.get("x-admin-token") ?? "";
+  const a = Buffer.from(provided);
+  const b = Buffer.from(adminToken);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) {
+    req.log.warn("Rejected admin booking release: bad admin token");
+    res.status(401).json({ error: "Invalid admin token" });
+    return;
+  }
+
+  const parsedParams = ReleaseLeadBookingParams.safeParse(req.params);
+  if (!parsedParams.success) {
+    res.status(400).json({ error: "A valid numeric lead id is required" });
+    return;
+  }
+
+  // Only rows that actually hold a slot are updated, so a missing lead and a
+  // lead without a booking both fall through to 404.
+  const [updated] = await db
+    .update(leadsTable)
+    .set({ preferredDate: null, preferredSlot: null })
+    .where(
+      and(
+        eq(leadsTable.id, parsedParams.data.id),
+        isNotNull(leadsTable.preferredSlot),
+      ),
+    )
+    .returning();
+
+  if (!updated) {
+    res
+      .status(404)
+      .json({ error: "No booking found for that lead" });
+    return;
+  }
+
+  req.log.info(
+    { leadId: updated.id },
+    "Booking released; slot is available again",
+  );
+  res.json(ReleaseLeadBookingResponse.parse(updated));
 });
 
 export default router;

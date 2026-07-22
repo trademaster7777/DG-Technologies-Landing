@@ -94,6 +94,36 @@ export const GetAvailabilityResponse = zod.object({
 
 
 /**
+ * Clears the lead's preferred date and slot so the slot becomes bookable again. Requires the X-Admin-Token header to match the server's ADMIN_TOKEN.
+ * @summary Release a lead's booked time slot (admin)
+ */
+
+
+
+export const ReleaseLeadBookingParams = zod.object({
+  "id": zod.coerce.number().min(1).describe('Lead ID')
+})
+
+export const ReleaseLeadBookingHeader = zod.object({
+  "X-Admin-Token": zod.string().describe('Admin token; must match the server\'s ADMIN_TOKEN')
+})
+
+export const ReleaseLeadBookingResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string(),
+  "businessName": zod.string().nullable(),
+  "packageInterest": zod.string().nullable(),
+  "preferredTime": zod.string().nullable(),
+  "preferredDate": zod.string().nullable(),
+  "preferredSlot": zod.string().nullable(),
+  "message": zod.string().nullable(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

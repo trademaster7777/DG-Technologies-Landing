@@ -291,6 +291,78 @@ export function useGetAvailability<TData = Awaited<ReturnType<typeof getAvailabi
 
 
 
+export const getReleaseLeadBookingUrl = (id: number,) => {
+
+
+
+
+  return `/api/leads/${id}/booking`
+}
+
+/**
+ * Clears the lead's preferred date and slot so the slot becomes bookable again. Requires the X-Admin-Token header to match the server's ADMIN_TOKEN.
+ * @summary Release a lead's booked time slot (admin)
+ */
+export const releaseLeadBooking = async (id: number, options?: RequestInit): Promise<Lead> => {
+
+  return customFetch<Lead>(getReleaseLeadBookingUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getReleaseLeadBookingMutationOptions = <TError = ErrorType<ApiErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof releaseLeadBooking>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof releaseLeadBooking>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['releaseLeadBooking'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof releaseLeadBooking>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  releaseLeadBooking(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReleaseLeadBookingMutationResult = NonNullable<Awaited<ReturnType<typeof releaseLeadBooking>>>
+
+    export type ReleaseLeadBookingMutationError = ErrorType<ApiErrorResponse>
+
+    /**
+ * @summary Release a lead's booked time slot (admin)
+ */
+export const useReleaseLeadBooking = <TError = ErrorType<ApiErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof releaseLeadBooking>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof releaseLeadBooking>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getReleaseLeadBookingMutationOptions(options));
+    }
+
 export const getHealthCheckUrl = () => {
 
 
