@@ -16,7 +16,7 @@ import { HowItWorks } from '@/components/sections/HowItWorks';
 import { WhyUs } from '@/components/sections/WhyUs';
 import { Pricing } from '@/components/sections/Pricing';
 import { Testimonials } from '@/components/sections/Testimonials';
-import { Upsell } from '@/components/sections/Upsell';
+import { AISection } from '@/components/sections/AISection';
 import { FAQSection } from '@/components/sections/FAQSection';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 
@@ -95,7 +95,7 @@ function LandingPage() {
           <WhyUs />
           <Pricing />
           <Testimonials />
-          <Upsell />
+          <AISection />
           <FAQSection />
           <FinalCTA />
         </main>

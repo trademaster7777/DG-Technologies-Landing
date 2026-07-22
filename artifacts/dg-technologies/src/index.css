@@ -49,6 +49,8 @@
   --border: 228 25% 10% / 0.1;
   --input: 228 25% 10% / 0.12;
   --ring: 205 85% 45%;
+  --link: 205 90% 34%; /* AA-safe text-link blue (darker than --primary for light bg) */
+  --link-hover: 194 90% 30%;
 
   --primary: 205 85% 45%; /* Logo azure (deepened for light bg) */
   --primary-foreground: 0 0% 100%;
@@ -82,6 +84,8 @@
   --border: 0 0% 100% / 0.1;
   --input: 0 0% 100% / 0.1;
   --ring: 205 90% 44%;
+  --link: 205 90% 44%; /* text links match --primary on dark bg */
+  --link-hover: 194 90% 36%;
 
   --primary: 205 90% 44%; /* Logo azure (deep enough for white button text) */
   --primary-foreground: 0 0% 100%;
