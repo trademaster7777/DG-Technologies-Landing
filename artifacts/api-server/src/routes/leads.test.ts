@@ -17,8 +17,10 @@ vi.mock("@workspace/db", () => ({
 }));
 
 const sendLeadNotificationMock = vi.fn();
+const sendVisitorConfirmationMock = vi.fn();
 vi.mock("../lib/mailer", () => ({
   sendLeadNotification: sendLeadNotificationMock,
+  sendVisitorConfirmation: sendVisitorConfirmationMock,
 }));
 
 const { default: app } = await import("../app");
@@ -38,6 +40,7 @@ function persistedLead(overrides: Record<string, unknown> = {}) {
     phone: validBody.phone,
     businessName: null,
     packageInterest: null,
+    preferredTime: null,
     message: validBody.message,
     createdAt: new Date("2026-07-22T00:00:00Z"),
     ...overrides,

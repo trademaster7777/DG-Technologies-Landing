@@ -16,6 +16,7 @@ const baseLead = {
   phone: "555-0000",
   businessName: null,
   packageInterest: null,
+  preferredTime: null,
   message: null,
 };
 
