@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://dg-technologies-landing.replit.app/sitemap.xml
