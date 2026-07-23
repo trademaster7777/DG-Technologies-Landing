@@ -1,4 +1,5 @@
 {
+  "framework": "vite",
   "buildCommand": "bash build.sh",
   "outputDirectory": "artifacts/dg-technologies/dist/public",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
