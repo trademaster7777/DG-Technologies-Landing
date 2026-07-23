@@ -232,11 +232,14 @@ export function ScrollFilmHero() {
     // ---- ImageBitmap sliding window (the anti-jank core) ----
     const bitmaps = new Map<number, ImageBitmap>();
     const decoding = new Set<number>();
-    const B_AHEAD = 18;
-    const B_KEEP = 28;
+    // Window kept modest: ~33 decoded 1280px bitmaps peak (~120MB). Larger
+    // windows have crashed the renderer on memory-constrained machines.
+    const B_AHEAD = 12;
+    const B_KEEP = 18;
     let bmpCenter = -999;
     let drawnIdx = -1; // last index we drew for…
     let drawnExact = false; // …and whether it was that frame's own pixels
+    let drawnSrc: ImageBitmap | HTMLImageElement | undefined; // what actually painted
 
     // Runs every tick (≤ ~40 cheap iterations) — no early-out shortcut, so the
     // window still completes when frames finish loading while the playhead is
@@ -313,6 +316,7 @@ export function ScrollFilmHero() {
       ctx!.drawImage(src, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
       drawnIdx = idx;
       drawnExact = exact;
+      drawnSrc = src;
     }
 
     // ---- adaptive header: sample top-strip luminance every ~180ms ----
@@ -322,10 +326,14 @@ export function ScrollFilmHero() {
     const lumaCtx = lumaCanvas.getContext('2d', { willReadFrequently: true });
     let lastLumaAt = 0;
     function sampleLuma(now: number) {
-      if (!lumaCtx || now - lastLumaAt < 180 || drawnIdx < 0) return;
+      // Sample from the small decoded source frame, never from the big GPU
+      // canvas — frequent full-canvas readbacks can crash the renderer.
+      const src = drawnSrc;
+      if (!lumaCtx || now - lastLumaAt < 180 || !src) return;
+      if (src instanceof ImageBitmap && src.width === 0) return; // closed bitmap
       lastLumaAt = now;
       try {
-        lumaCtx.drawImage(canvas!, 0, 0, canvas!.width, Math.max(1, canvas!.height * 0.16), 0, 0, 16, 4);
+        lumaCtx.drawImage(src, 0, 0, src.width, Math.max(1, src.height * 0.16), 0, 0, 16, 4);
         const d = lumaCtx.getImageData(0, 0, 16, 4).data;
         let sum = 0;
         for (let i = 0; i < d.length; i += 4) {

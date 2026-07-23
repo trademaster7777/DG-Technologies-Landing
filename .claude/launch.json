@@ -8,9 +8,9 @@
         "PORT=5173",
         "BASE_PATH=/",
         "node",
-        "/Users/dannygavrilov/Desktop/DG-Technologies-Landing/artifacts/dg-technologies/node_modules/vite/bin/vite.js",
+        "/Users/dannygavrilov/Desktop/D2G/DG-Technologies-Landing/artifacts/dg-technologies/node_modules/vite/bin/vite.js",
         "--config",
-        "/Users/dannygavrilov/Desktop/DG-Technologies-Landing/artifacts/dg-technologies/vite.config.ts",
+        "/Users/dannygavrilov/Desktop/D2G/DG-Technologies-Landing/artifacts/dg-technologies/vite.config.ts",
         "--host",
         "0.0.0.0"
       ],
