@@ -13,7 +13,8 @@ else
 fi
 cd repo
 export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-corepack pnpm install --no-frozen-lockfile
+# Git builds already ran Vercel's install step; only install when missing.
+[ -d node_modules ] || corepack pnpm install --no-frozen-lockfile
 cd artifacts/dg-technologies
 PORT=5173 BASE_PATH=/ ./node_modules/.bin/vite build --config vite.config.ts
 echo 'build complete'
