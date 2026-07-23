@@ -229,61 +229,45 @@ export function ScrollFilmHero() {
       return undefined;
     }
 
-    // ---- ImageBitmap sliding window (the anti-jank core) ----
-    const bitmaps = new Map<number, ImageBitmap>();
+    // ---- decode-warming window (the anti-jank core) ----
+    // Frames are pre-decoded with img.decode() — Chrome's own off-thread
+    // decoder — and drawn as plain images. No ImageBitmap objects are ever
+    // created or closed: the create/close lifecycle under fast scrubbing
+    // crashed the renderer ("Aw, Snap" error 11, a GPU use-after-free).
+    // Chrome's image cache owns the decoded memory and self-evicts under
+    // pressure; the worst case is a one-frame decode stutter, never a crash.
+    const decoded = new Set<number>();
     const decoding = new Set<number>();
-    // Window kept modest: ~33 decoded 1280px bitmaps peak (~120MB). Larger
-    // windows have crashed the renderer on memory-constrained machines.
     const B_AHEAD = 12;
-    const B_KEEP = 18;
-    let bmpCenter = -999;
     let drawnIdx = -1; // last index we drew for…
     let drawnExact = false; // …and whether it was that frame's own pixels
-    let drawnSrc: ImageBitmap | HTMLImageElement | undefined; // what actually painted
-
-    // Evicted bitmaps are parked here and closed ~250ms later — closing a
-    // bitmap the GPU may still be uploading/drawing is a renderer-crash risk
-    // (reported as Chrome's "Aw, Snap" during fast scrub + direction reversal).
-    const closeQueue: { b: ImageBitmap; at: number }[] = [];
-    function flushCloseQueue(now: number, all = false) {
-      while (closeQueue.length && (all || now - closeQueue[0].at > 250)) {
-        closeQueue.shift()!.b.close();
-      }
-    }
+    let drawnSrc: HTMLImageElement | undefined; // what actually painted
 
     // Runs every tick. Decodes are capped (nearest-to-playhead first) so a
-    // fast scrub doesn't queue hundreds of createImageBitmap calls at once.
+    // fast scrub doesn't queue hundreds of decode requests at once.
     const DECODE_CONCURRENCY = 4;
-    function ensureBitmaps(center: number, now: number) {
-      bmpCenter = center;
+    function ensureDecoded(center: number) {
       for (let d = 0; d <= B_AHEAD && decoding.size < DECODE_CONCURRENCY; d++) {
         for (const i of d === 0 ? [center] : [center - d, center + d]) {
           if (i < 0 || i >= FRAME_COUNT) continue;
           if (decoding.size >= DECODE_CONCURRENCY) break;
           const img = images[i];
-          if (bitmaps.has(i) || decoding.has(i) || !img) continue;
+          if (!img || decoded.has(i) || decoding.has(i)) continue;
           decoding.add(i);
-          createImageBitmap(img)
-            .then((b) => {
+          img
+            .decode()
+            .then(() => {
               decoding.delete(i);
-              if (Math.abs(i - bmpCenter) > B_KEEP) {
-                closeQueue.push({ b, at: performance.now() });
-                return;
-              }
-              bitmaps.set(i, b);
+              decoded.add(i);
               if (i === drawnIdx && !drawnExact) drawFrame(i, true);
             })
-            .catch(() => decoding.delete(i));
+            .catch(() => {
+              // decode() can reject transiently; the image is still drawable
+              decoding.delete(i);
+              decoded.add(i);
+            });
         }
       }
-      for (const k of Array.from(bitmaps.keys())) {
-        if (k < center - B_KEEP || k > center + B_KEEP) {
-          const b = bitmaps.get(k);
-          if (b) closeQueue.push({ b, at: now });
-          bitmaps.delete(k);
-        }
-      }
-      flushCloseQueue(now);
     }
 
     // ---- canvas sizing (DPR capped at 1.5) ----
@@ -306,17 +290,21 @@ export function ScrollFilmHero() {
       // Only skip when the frame on screen is already this index's own pixels —
       // a fallback-neighbour draw must keep retrying until the real frame lands.
       if (!force && idx === drawnIdx && drawnExact) return;
-      let src: ImageBitmap | HTMLImageElement | undefined = bitmaps.get(idx);
-      let exact = src !== undefined;
+      let src: HTMLImageElement | undefined;
+      let exact = false;
+      if (decoded.has(idx) && images[idx]) {
+        src = images[idx];
+        exact = true;
+      }
       if (!src) {
-        // A nearby decoded bitmap is a pure GPU blit — prefer it over drawing an
-        // HTMLImageElement, whose synchronous JPEG decode spikes the main thread.
+        // A nearby pre-decoded frame draws without a sync decode — prefer it.
         for (let d = 1; d <= 4 && !src; d++) {
-          src = bitmaps.get(idx - d) ?? bitmaps.get(idx + d);
+          if (decoded.has(idx - d) && images[idx - d]) src = images[idx - d];
+          else if (decoded.has(idx + d) && images[idx + d]) src = images[idx + d];
         }
       }
       if (!src && images[idx]) {
-        src = images[idx]; // parked with no window yet (e.g. ?jump landing): decode once
+        src = images[idx]; // parked with no warm window yet (e.g. ?jump landing)
         exact = true;
       }
       if (!src) src = nearestFrame(idx);
@@ -344,7 +332,6 @@ export function ScrollFilmHero() {
       // canvas — frequent full-canvas readbacks can crash the renderer.
       const src = drawnSrc;
       if (!lumaCtx || now - lastLumaAt < 180 || !src) return;
-      if (src instanceof ImageBitmap && src.width === 0) return; // closed bitmap
       lastLumaAt = now;
       try {
         lumaCtx.drawImage(src, 0, 0, src.width, Math.max(1, src.height * 0.16), 0, 0, 16, 4);
@@ -409,7 +396,7 @@ export function ScrollFilmHero() {
         if (Math.abs(target - currentFrame) < 0.3) currentFrame = target;
       }
       const idx = Math.round(currentFrame);
-      ensureBitmaps(idx, now);
+      ensureDecoded(idx);
       drawFrame(idx);
       sampleLuma(now);
 
@@ -464,9 +451,7 @@ export function ScrollFilmHero() {
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
-      for (const b of bitmaps.values()) b.close();
-      flushCloseQueue(performance.now(), true);
-      bitmaps.clear();
+      decoded.clear();
       document.documentElement.classList.remove('film-over', 'film-light');
       document.documentElement.style.removeProperty('--film-seam');
     };

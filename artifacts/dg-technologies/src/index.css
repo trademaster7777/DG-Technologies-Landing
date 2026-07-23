@@ -322,6 +322,12 @@ html.film-over .site-header {
   --background: 240 20% 4%;
   --border: 0 0% 100% / 0.1;
   --card-border: 0 0% 100% / 0.1;
+  /* No backdrop blur while over the film canvas: toggling a backdrop-filter
+     layer over a large canvas (the isScrolled flip near the top) is a GPU
+     layer create/teardown hot spot implicated in renderer crashes — and the
+     blur is invisible over dark footage anyway. */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Landing zone after the film: melts the seam colour into the page background
