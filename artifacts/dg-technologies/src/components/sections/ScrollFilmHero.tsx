@@ -241,35 +241,49 @@ export function ScrollFilmHero() {
     let drawnExact = false; // …and whether it was that frame's own pixels
     let drawnSrc: ImageBitmap | HTMLImageElement | undefined; // what actually painted
 
-    // Runs every tick (≤ ~40 cheap iterations) — no early-out shortcut, so the
-    // window still completes when frames finish loading while the playhead is
-    // parked (e.g. a ?jump deep-seek that outran the loader).
-    function ensureBitmaps(center: number) {
+    // Evicted bitmaps are parked here and closed ~250ms later — closing a
+    // bitmap the GPU may still be uploading/drawing is a renderer-crash risk
+    // (reported as Chrome's "Aw, Snap" during fast scrub + direction reversal).
+    const closeQueue: { b: ImageBitmap; at: number }[] = [];
+    function flushCloseQueue(now: number, all = false) {
+      while (closeQueue.length && (all || now - closeQueue[0].at > 250)) {
+        closeQueue.shift()!.b.close();
+      }
+    }
+
+    // Runs every tick. Decodes are capped (nearest-to-playhead first) so a
+    // fast scrub doesn't queue hundreds of createImageBitmap calls at once.
+    const DECODE_CONCURRENCY = 4;
+    function ensureBitmaps(center: number, now: number) {
       bmpCenter = center;
-      const lo = Math.max(0, center - B_AHEAD);
-      const hi = Math.min(FRAME_COUNT - 1, center + B_AHEAD);
-      for (let i = lo; i <= hi; i++) {
-        const img = images[i];
-        if (bitmaps.has(i) || decoding.has(i) || !img) continue;
-        decoding.add(i);
-        createImageBitmap(img)
-          .then((b) => {
-            decoding.delete(i);
-            if (Math.abs(i - bmpCenter) > B_KEEP) {
-              b.close();
-              return;
-            }
-            bitmaps.set(i, b);
-            if (i === drawnIdx && !drawnExact) drawFrame(i, true);
-          })
-          .catch(() => decoding.delete(i));
+      for (let d = 0; d <= B_AHEAD && decoding.size < DECODE_CONCURRENCY; d++) {
+        for (const i of d === 0 ? [center] : [center - d, center + d]) {
+          if (i < 0 || i >= FRAME_COUNT) continue;
+          if (decoding.size >= DECODE_CONCURRENCY) break;
+          const img = images[i];
+          if (bitmaps.has(i) || decoding.has(i) || !img) continue;
+          decoding.add(i);
+          createImageBitmap(img)
+            .then((b) => {
+              decoding.delete(i);
+              if (Math.abs(i - bmpCenter) > B_KEEP) {
+                closeQueue.push({ b, at: performance.now() });
+                return;
+              }
+              bitmaps.set(i, b);
+              if (i === drawnIdx && !drawnExact) drawFrame(i, true);
+            })
+            .catch(() => decoding.delete(i));
+        }
       }
       for (const k of Array.from(bitmaps.keys())) {
         if (k < center - B_KEEP || k > center + B_KEEP) {
-          bitmaps.get(k)?.close();
+          const b = bitmaps.get(k);
+          if (b) closeQueue.push({ b, at: now });
           bitmaps.delete(k);
         }
       }
+      flushCloseQueue(now);
     }
 
     // ---- canvas sizing (DPR capped at 1.5) ----
@@ -395,7 +409,7 @@ export function ScrollFilmHero() {
         if (Math.abs(target - currentFrame) < 0.3) currentFrame = target;
       }
       const idx = Math.round(currentFrame);
-      ensureBitmaps(idx);
+      ensureBitmaps(idx, now);
       drawFrame(idx);
       sampleLuma(now);
 
@@ -451,6 +465,7 @@ export function ScrollFilmHero() {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
       for (const b of bitmaps.values()) b.close();
+      flushCloseQueue(performance.now(), true);
       bitmaps.clear();
       document.documentElement.classList.remove('film-over', 'film-light');
       document.documentElement.style.removeProperty('--film-seam');
