@@ -3,6 +3,8 @@ import { Route, Switch, Router as WouterRouter } from 'wouter';
 import Lenis from 'lenis';
 import { MotionConfig } from 'framer-motion';
 
+import { wireLenisScrollTrigger, initSectionMotion, applyJumpContract } from '@/lib/scrollMotion';
+
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ScrollProgress } from '@/components/ui/ScrollProgress';
@@ -10,7 +12,7 @@ import { ScrollProgress } from '@/components/ui/ScrollProgress';
 import PrivacyPolicy from '@/pages/privacy';
 import TermsOfService from '@/pages/terms';
 
-import { Hero } from '@/components/sections/Hero';
+import { ScrollFilmHero } from '@/components/sections/ScrollFilmHero';
 import { Problem } from '@/components/sections/Problem';
 import { HowItWorks } from '@/components/sections/HowItWorks';
 import { WhyUs } from '@/components/sections/WhyUs';
@@ -21,8 +23,19 @@ import { FAQSection } from '@/components/sections/FAQSection';
 import { FinalCTA } from '@/components/sections/FinalCTA';
 
 function LandingPage() {
-  // Initialize smooth scrolling with Lenis
+  // Smooth scrolling (Lenis) + scroll-film section motion (GSAP ScrollTrigger),
+  // wired to a single clock in scrollMotion.ts.
   useEffect(() => {
+    // Dev contract: ?jump=<scrollY> disables smooth scroll and lands the page
+    // pre-scrolled with all scroll-driven state settled (verification harness).
+    const isJump = new URLSearchParams(window.location.search).has('jump');
+
+    if (isJump) {
+      const cleanupMotion = initSectionMotion();
+      applyJumpContract();
+      return () => cleanupMotion();
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -33,13 +46,8 @@ function LandingPage() {
       touchMultiplier: 2,
     });
 
-    let rafId = 0;
-    function raf(time: number) {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-
-    rafId = requestAnimationFrame(raf);
+    const unwire = wireLenisScrollTrigger(lenis);
+    const cleanupMotion = initSectionMotion();
 
     // Route same-page anchor clicks through Lenis for smooth scrolling
     function onAnchorClick(e: MouseEvent) {
@@ -77,8 +85,9 @@ function LandingPage() {
     }
 
     return () => {
-      cancelAnimationFrame(rafId);
       document.removeEventListener('click', onAnchorClick);
+      cleanupMotion();
+      unwire();
       lenis.destroy();
     };
   }, []);
@@ -89,8 +98,11 @@ function LandingPage() {
         <ScrollProgress />
         <Header />
         <main>
-          <Hero />
-          <Problem />
+          <ScrollFilmHero />
+          {/* Landing zone: melts the film's seam colour into the page background */}
+          <div className="film-landing">
+            <Problem />
+          </div>
           <HowItWorks />
           <WhyUs />
           <Pricing />

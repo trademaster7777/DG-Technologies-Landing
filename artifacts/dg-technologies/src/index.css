@@ -116,7 +116,8 @@
   }
   
   html {
-    scroll-behavior: smooth;
+    /* NOTE: no scroll-behavior: smooth — Lenis owns smooth scrolling, and native
+       smooth-scroll fights both Lenis and the scroll-film scrub engine. */
     color-scheme: light;
   }
 
@@ -170,5 +171,178 @@
     100% {
       transform: translateX(100%);
     }
+  }
+}
+
+/* ===== SIGNAL scroll-film (hero) ===== */
+
+.film-driver {
+  position: relative;
+  height: 850vh;
+  background: #05070c;
+}
+
+.film-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #05070c;
+  color: #f7fafd;
+}
+
+.film-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Film grain + vignette sell the "one shot" feel; both fade with the handoff */
+.film-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='fg'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23fg)' opacity='0.055'/%3E%3C/svg%3E");
+}
+
+.film-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+/* Bottom fade → seam colour, ramps in over the last ~8% of film progress */
+.film-fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42vh;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(180deg, transparent, var(--film-seam, #05070c));
+}
+
+.film-beat {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.film-beat h1,
+.film-beat h2 {
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
+}
+
+/* Finale sits over the brightest footage — a soft radial scrim keeps it legible */
+.film-beat--scrim::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1; /* behind the beat's copy; the beat's stacking context keeps it above the canvas */
+  background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(2, 6, 14, 0.78), transparent 72%);
+  pointer-events: none;
+}
+
+.film-beat p {
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 2px 20px rgba(0, 0, 0, 0.75);
+}
+
+/* Chapter readout: label + thin progress bar, bottom-left */
+.film-readout {
+  position: absolute;
+  left: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 10;
+  pointer-events: none;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(247, 250, 253, 0.8);
+}
+
+.film-readout-bar {
+  margin-top: 0.5rem;
+  width: 8rem;
+  height: 2px;
+  background: rgba(247, 250, 253, 0.18);
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.film-readout-bar > div {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+  will-change: transform;
+}
+
+/* Frame loader: thin progress line, bottom center, fades out once loaded */
+.film-loader {
+  position: absolute;
+  left: 50%;
+  bottom: 3.25rem;
+  transform: translateX(-50%);
+  width: 10rem;
+  height: 2px;
+  background: rgba(247, 250, 253, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.film-loader > div {
+  height: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: hsl(var(--primary));
+}
+
+/* While the film is under the fixed chrome, the header always sits on dark
+   footage regardless of site theme — flip its design tokens to the dark set. */
+html.film-over .site-header {
+  --foreground: 0 0% 98%;
+  --background: 240 20% 4%;
+  --border: 0 0% 100% / 0.1;
+  --card-border: 0 0% 100% / 0.1;
+}
+
+/* Landing zone after the film: melts the seam colour into the page background
+   (invisible in dark theme, a graceful dark→light ramp in light theme). */
+.film-landing {
+  background: linear-gradient(180deg, var(--film-seam, #05070c) 0%, hsl(var(--background)) 42%);
+}
+
+@media (max-width: 768px) {
+  .film-driver {
+    height: 640vh;
+  }
+
+  .film-readout {
+    left: 1rem;
+    bottom: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .film-grain {
+    display: none;
   }
 }

@@ -88,7 +88,10 @@ export function HowItWorks() {
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
                 >
                   <div className="glass-card p-8 rounded-2xl hover:shadow-[0_8px_30px_rgba(20,25,50,0.12)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-shadow group relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-6 opacity-10 font-bold text-6xl group-hover:scale-110 transition-transform duration-500">
+                    <div
+                      className="absolute top-0 right-0 p-6 opacity-10 font-bold text-6xl"
+                      data-parallax="0.1"
+                    >
                       0{step.num}
                     </div>
                     <div className="text-primary font-mono text-sm font-semibold tracking-wider mb-2">STEP {step.num}</div>

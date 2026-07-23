@@ -17,7 +17,10 @@ export function AISection() {
   return (
     <section id="ai" className="py-24 relative overflow-hidden">
       {/* Decorative gradient orb */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 blur-[120px] rounded-full pointer-events-none"
+        data-parallax="0.2"
+      />
 
       <div className="container px-4 md:px-6 mx-auto relative z-10">
         <motion.div

@@ -42,7 +42,10 @@ export function Testimonials() {
 
   return (
     <section className="py-24 md:py-32 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--accent)/0.05),transparent_60%)]" />
+      <div
+        className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--accent)/0.05),transparent_60%)]"
+        data-parallax="0.12"
+      />
       <div className="container relative z-10 px-4 md:px-6 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -54,8 +57,9 @@ export function Testimonials() {
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Trusted by those who do the work.</h2>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
+          data-skew
           variants={container}
           initial="hidden"
           whileInView="show"

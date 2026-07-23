@@ -57,7 +57,7 @@ export function Header() {
   return (
     <motion.header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+        "site-header fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         isScrolled || menuOpen
           ? "bg-background/80 backdrop-blur-lg border-b border-border py-4"
           : "bg-transparent py-6"
